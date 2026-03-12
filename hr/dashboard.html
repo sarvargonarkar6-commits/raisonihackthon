@@ -1,1 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#4f46e5', 
+                            600: '#4338ca',
+                            700: '#3730a3',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; overflow-x: hidden; }
+        
+        .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 16px 12px; color: #64748B; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease; border-bottom: 3px solid transparent; }
+        .nav-link:hover { color: #4f46e5; }
+        .nav-link.active { color: #4f46e5; border-bottom: 3px solid #4f46e5; }
+
+        .glass-card { background: white; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .glass-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        .unlock-btn { position: relative; overflow: hidden; }
+        .unlock-btn::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); transform: rotate(45deg); animation: shine 3s infinite; }
+        @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                
+                <div class="flex items-center gap-3 pr-8 border-r border-gray-100 my-3">
+                    <div class="w-8 h-8 bg-brand-600 flex items-center justify-center text-white font-bold text-lg rounded-sm">H</div>
+                    <span class="text-xl font-bold text-slate-900 tracking-tight">BridgeAI <span class="text-brand-600">HR</span></span>
+                </div>
+
+                <div class="flex-1 flex space-x-2 overflow-x-auto no-scrollbar pl-6">
+                    <a href="dashboard.html" class="nav-link active"><i class="fas fa-th-large"></i> Dashboard</a>
+                    <a href="company-profile.html" class="nav-link"><i class="fas fa-building opacity-70"></i> Company Profile</a>
+                    <a href="post-job.html" class="nav-link"><i class="fas fa-plus-circle opacity-70"></i> Post a Job</a>
+                    <a href="manage-jobs.html" class="nav-link"><i class="fas fa-tasks opacity-70"></i> Manage Jobs</a>
+                    <a href="all-participants.html" class="nav-link"><i class="fas fa-users opacity-70"></i> Candidates</a>
+                    <a href="suggest-talent.html" class="nav-link"><i class="fas fa-search opacity-70"></i> Suggest Talent</a>
+                    <a href="accepted.html" class="nav-link text-green-600 hover:text-green-700">
+                        <i class="fas fa-check-circle opacity-70"></i> Accepted
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-4 pl-4 border-l border-gray-100 my-3">
+                    <div class="flex items-center gap-2 cursor-pointer group relative">
+                        <div id="nav-profile-img-container" class="w-8 h-8 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center font-bold text-sm overflow-hidden">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs text-slate-400 group-hover:text-slate-600"></i>
+                        
+                        <div class="absolute right-0 top-10 w-56 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                            <div class="p-4 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                                <p class="text-sm font-bold text-slate-800">HR Manager</p>
+                                <p class="text-xs text-brand-600 font-semibold mt-0.5">Recruitment Team</p>
+                            </div>
+                            <div class="p-2 space-y-1">
+                                <a href="company-profile.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-700 rounded-md transition">
+                                    <i class="fas fa-cog w-4"></i> Settings
+                                </a>
+                                <hr class="my-1 border-gray-100">
+                                <button id="logout-btn" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition text-left">
+                                    <i class="fas fa-sign-out-alt w-4"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1" id="date-display">TODAY</p>
+                <h1 class="text-3xl font-extrabold text-slate-900">Welcome back, <span class="text-brand-600">HR! 👋</span></h1>
+                <p class="text-slate-500 mt-1 text-sm">Here is what's happening with your campus hiring today.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="window.location.href='manage-jobs.html'" class="bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-lg font-semibold hover:bg-slate-50 transition flex items-center gap-2 shadow-sm text-sm">
+                    <i class="fas fa-tasks text-brand-600"></i> Manage Jobs
+                </button>
+                <button onclick="window.location.href='post-job.html'" class="bg-slate-900 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-slate-800 transition flex items-center gap-2 shadow-sm text-sm">
+                    <i class="fas fa-plus"></i> Create New Listing
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            
+            <div class="glass-card p-6 flex items-center gap-4 border-l-4 border-l-brand-500">
+                <div class="w-12 h-12 bg-indigo-50 text-brand-600 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-briefcase"></i></div>
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-500">Active Job Roles</h3>
+                    <div class="text-2xl font-bold text-slate-900" id="active-jobs-count">5</div>
+                </div>
+            </div>
+
+            <div class="glass-card p-6 flex items-center gap-4 border-l-4 border-l-blue-500">
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-robot"></i></div>
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-500">Candidates Screened</h3>
+                    <div class="text-2xl font-bold text-slate-900" id="candidates-screened-count">42</div>
+                </div>
+            </div>
+
+            <div class="glass-card p-6 flex items-center gap-4 border-l-4 border-l-purple-500">
+                <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-star"></i></div>
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-500">Offers Accepted</h3>
+                    <div class="text-2xl font-bold text-slate-900" id="offers-accepted-count">12</div>
+                </div>
+            </div>
+
+            <div class="glass-card p-6 flex items-center gap-4 border-l-4 border-l-green-500">
+                <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-user-check"></i></div>
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-500">Accepted Candidates</h3>
+                    <div class="text-2xl font-bold text-slate-900" id="total-accepted-count">15 <span class="text-xs text-green-600 font-medium ml-1">Approved</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-8 relative overflow-hidden bg-gradient-to-r from-slate-900 to-brand-900 text-white min-h-[200px] flex flex-col justify-center">
+            <div class="absolute right-0 top-0 w-96 h-96 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+            <div class="relative z-10">
+                <h2 class="text-3xl font-extrabold mb-3">Need Specialized Talent?</h2>
+                <p class="text-indigo-100 mb-8 max-w-2xl font-medium">Use our AI-powered Suggest Talent engine to automatically find candidates who match your exact project requirements based on their deep technical assessment scores.</p>
+                <a href="suggest-talent.html" class="unlock-btn inline-flex items-center gap-3 bg-white text-brand-700 px-8 py-4 rounded-xl font-bold shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1">
+                    <i class="fas fa-search"></i> Find Perfect Matches
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        window.onload = function() {
+            const options = { weekday: 'short', month: 'short', day: 'numeric' };
+            document.getElementById('date-display').innerText = new Date().toLocaleDateString('en-US', options).toUpperCase();
+        }
+    </script>
+
+    <script type="module" src="../js/hr-core.js"></script>
+</body>
+</html>
