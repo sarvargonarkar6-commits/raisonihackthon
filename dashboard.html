@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; overflow-x: hidden; }
+        
+        /* Navbar specific */
+        .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 12px 8px; color: #64748B; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease; border-bottom: 3px solid transparent; white-space: nowrap; }
+        @media (min-width: 768px) {
+            .nav-link { padding: 16px 12px; }
+        }
+        .nav-link:hover { color: #16a34a; }
+        .nav-link.active { color: #16a34a; border-bottom: 3px solid #16a34a; }
+        
+        /* Cards */
+        .glass-card { background: white; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .glass-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        /* Roadmap Elements */
+        .roadmap-container { position: relative; padding-left: 20px; }
+        .roadmap-line { position: absolute; left: 5px; top: 10px; bottom: 10px; width: 3px; background: #E2E8F0; border-radius: 4px; }
+        .roadmap-progress-line { position: absolute; left: 5px; top: 10px; width: 3px; background: #16a34a; border-radius: 4px; z-index: 1; height: 60%; }
+        .step-item { position: relative; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 12px; z-index: 2; }
+        @media (min-width: 768px) {
+            .step-item { gap: 16px; margin-bottom: 30px; }
+        }
+        .step-icon { width: 28px; height: 28px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border: 3px solid #F8FAFC; margin-left: -12.5px; transition: all 0.3s ease; }
+        @media (min-width: 768px) {
+            .step-icon { width: 32px; height: 32px; font-size: 12px; border-width: 4px; margin-left: -14.5px; }
+        }
+        .step-done .step-icon { background: #16a34a; color: white; }
+        .step-active .step-icon { background: #3B82F6; color: white; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); }
+        .step-locked .step-icon { background: #CBD5E1; color: white; }
+        .step-content { background: white; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; width: 100%; transition: 0.3s; }
+        @media (min-width: 768px) {
+            .step-content { padding: 16px; }
+        }
+        .step-active .step-content { border-color: #3B82F6; background: #F0F9FF; }
+        
+        /* Utils */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* HEATMAP STYLES */
+        .heatmap-container { display: flex; gap: 3px; }
+        @media (min-width: 768px) {
+            .heatmap-container { gap: 4px; }
+        }
+        .heatmap-column { display: flex; flex-direction: column; gap: 3px; }
+        @media (min-width: 768px) {
+            .heatmap-column { gap: 4px; }
+        }
+        .heatmap-cell { width: 9px; height: 9px; border-radius: 2px; background-color: #ebedf0; position: relative; transition: all 0.2s; }
+        @media (min-width: 768px) {
+            .heatmap-cell { width: 11px; height: 11px; }
+        }
+        .heatmap-cell:hover { transform: scale(1.3); z-index: 10; outline: 1px solid #94a3b8; }
+        
+        /* Contribution Levels */
+        .level-0 { background-color: #ebedf0; }
+        .level-1 { background-color: #dcfce7; }
+        .level-2 { background-color: #86efac; } 
+        .level-3 { background-color: #22c55e; }
+        .level-4 { background-color: #15803d; }
+
+        /* Animation */
+        .unlock-btn { position: relative; overflow: hidden; }
+        .unlock-btn::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); transform: rotate(45deg); animation: shine 3s infinite; }
+        @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm shrink-0">
+        <div class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-2 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                
+                <div class="flex items-center gap-2 md:gap-3 pr-3 md:pr-8 border-r border-gray-100 my-3">
+                    <div class="w-8 h-8 bg-brand-600 flex items-center justify-center text-white font-bold text-lg rounded-sm shrink-0">C</div>
+                    <span class="text-lg md:text-xl font-bold text-slate-900 tracking-tight hidden sm:block">BridgeAI</span>
+                </div>
+
+                <div class="flex-1 flex space-x-2 overflow-x-auto no-scrollbar pl-3 md:pl-6 items-center">
+                    <a href="dashboard.html" class="nav-link active"><i class="fas fa-th-large"></i> Dashboard</a>
+                    <a href="roadmap.html" class="nav-link"><i class="fas fa-map-signs"></i> Roadmap</a>
+                    <a href="interview.html" class="nav-link"><i class="fas fa-robot"></i> AI Interview</a>
+                    <a href="internship.html" class="nav-link"><i class="fas fa-laptop-code"></i> AI Internship</a>
+                    <a href="soft-skills.html" class="nav-link"><i class="fas fa-comments"></i> Soft Skills</a>
+                    <a href="resume.html" class="nav-link"><i class="fas fa-file-alt"></i> ATS Analyzer</a>
+                    <a href="jobs.html" class="nav-link"><i class="fas fa-briefcase"></i> Jobs</a>
+                    <a href="unlockgoal.html" class="nav-link text-purple-600 border-b-2 border-transparent hover:border-purple-600 ml-2">
+                        <i class="fas fa-bullseye text-purple-500"></i> UnlockGoal
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-3 md:gap-4 pl-3 md:pl-4 border-l border-gray-100 my-3">
+                    <button class="hidden md:flex items-center gap-2 bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-yellow-200 transition">
+                        <i class="fas fa-crown"></i> Pro
+                    </button>
+                    
+                    <div class="flex items-center gap-2 cursor-pointer group relative">
+                        <div id="nav-profile-img-container" class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm overflow-hidden shrink-0">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs text-slate-400 group-hover:text-slate-600 hidden sm:block"></i>
+                        
+                        <div class="absolute right-0 top-10 w-56 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                            <div class="p-4 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                                <p class="text-sm font-bold text-slate-800 truncate" id="dropdown-name">Student Name</p>
+                                <p class="text-xs text-brand-600 font-semibold mt-0.5">Free Plan</p>
+                            </div>
+                            <div class="p-2 space-y-1">
+                                <a href="profile.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-700 rounded-md transition">
+                                    <i class="fas fa-user-circle w-4"></i> My Profile
+                                </a>
+                                <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-700 rounded-md transition">
+                                    <i class="fas fa-cog w-4"></i> Settings
+                                </a>
+                                <hr class="my-1 border-gray-100">
+                                <button onclick="logoutUser()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition text-left">
+                                    <i class="fas fa-sign-out-alt w-4"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 w-full max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-2 sm:px-4 lg:px-8 py-4 md:py-8">
+        
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 mb-6 md:mb-8 mt-2">
+            <div>
+                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider mb-1" id="date-display">WED, FEB 18</p>
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight">Good <span id="greeting">Morning</span>, <span id="user-name" class="text-brand-600">Student</span>!</h1>
+                <p class="text-slate-500 mt-1 md:mt-2 text-xs md:text-sm flex flex-wrap items-center gap-1.5">You are on a <span id="user-streak" class="font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-md flex items-center gap-1"><i class="fas fa-fire"></i> 0 Day Streak</span>. Keep coding!</p>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
+            <div class="glass-card p-3 md:p-6 flex items-center gap-2 md:gap-4 border-l-4 border-l-brand-500">
+                <div class="w-8 h-8 md:w-12 md:h-12 bg-green-50 text-brand-600 rounded-full flex items-center justify-center text-sm md:text-xl shrink-0"><i class="fas fa-graduation-cap"></i></div>
+                <div class="min-w-0">
+                    <h3 class="text-[10px] md:text-sm font-semibold text-slate-500 truncate">Academic</h3>
+                    <div class="text-base sm:text-lg md:text-2xl font-bold text-slate-900 truncate" id="stat-cgpa">0.0 <span class="text-[9px] md:text-xs text-slate-400 font-medium">CGPA</span></div>
+                </div>
+            </div>
+
+            <div class="glass-card p-3 md:p-6 flex items-center gap-2 md:gap-4 border-l-4 border-l-blue-500">
+                <div class="w-8 h-8 md:w-12 md:h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-sm md:text-xl shrink-0"><i class="fas fa-brain"></i></div>
+                <div class="min-w-0">
+                    <h3 class="text-[10px] md:text-sm font-semibold text-slate-500 truncate">AI Skill</h3>
+                    <div class="text-base sm:text-lg md:text-2xl font-bold text-slate-900 truncate" id="stat-ai-score">0% </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-3 md:p-6 flex items-center gap-2 md:gap-4 border-l-4 border-l-indigo-500">
+                <div class="w-8 h-8 md:w-12 md:h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-sm md:text-xl shrink-0"><i class="fas fa-file-invoice"></i></div>
+                <div class="min-w-0">
+                    <h3 class="text-[10px] md:text-sm font-semibold text-slate-500 truncate">ATS Score</h3>
+                    <div class="text-base sm:text-lg md:text-2xl font-bold text-slate-900 truncate" id="stat-ats-score">0% </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-3 md:p-6 flex items-center gap-2 md:gap-4 border-l-4 border-l-yellow-500">
+                <div class="w-8 h-8 md:w-12 md:h-12 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center text-sm md:text-xl shrink-0"><i class="fas fa-trophy"></i></div>
+                <div class="min-w-0">
+                    <h3 class="text-[10px] md:text-sm font-semibold text-slate-500 truncate">Rank</h3>
+                    <div class="text-base sm:text-lg md:text-2xl font-bold text-slate-900 truncate">#12 <span class="text-[9px] md:text-xs text-green-600 font-medium ml-0.5"><i class="fas fa-arrow-up"></i></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-8">
+            <div class="lg:col-span-8 space-y-5 md:space-y-8">
+                
+                <div class="glass-card p-4 md:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
+                        <div>
+                            <h2 class="text-base md:text-lg font-bold text-slate-900">Learning Consistency</h2>
+                            <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 md:mt-1">Daily activity and progress monitoring</p>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold text-slate-400">
+                            <span>Less</span>
+                            <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm level-0"></div>
+                            <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm level-1"></div>
+                            <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm level-2"></div>
+                            <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm level-3"></div>
+                            <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm level-4"></div>
+                            <span>More</span>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full overflow-x-auto no-scrollbar pb-2">
+                        <div class="min-w-max flex">
+                            <div class="flex flex-col justify-between text-[9px] sm:text-[10px] text-slate-400 font-bold pr-2 py-6 shrink-0 h-[100px] md:h-[110px]">
+                                <span>Mon</span>
+                                <span>Wed</span>
+                                <span>Fri</span>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex justify-between text-[9px] sm:text-[10px] text-slate-400 font-bold mb-1.5 pl-1" id="heatmap-months">
+                                    </div>
+                                <div id="heatmap-grid" class="heatmap-container">
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 md:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
+                        <div>
+                            <h2 class="text-base md:text-lg font-bold text-slate-900">Your Skill Proficiency</h2>
+                            <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 md:mt-1">Based on Assessed Practical Skills</p>
+                        </div>
+                        <div class="flex gap-2 sm:gap-3">
+                            <span class="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-slate-600"><span class="w-2.5 h-2.5 rounded-sm bg-blue-500"></span> Skill Score</span>
+                        </div>
+                    </div>
+                    <div class="h-[200px] sm:h-[250px] md:h-[320px] w-full relative">
+                        <canvas id="realityChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="glass-card p-5 md:p-8 relative overflow-hidden bg-gradient-to-r from-purple-900 to-indigo-900 text-white flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
+                    <div class="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                    <div class="relative z-10 w-full md:w-auto flex-1">
+                        <h2 class="text-lg md:text-2xl font-bold mb-1.5 md:mb-2">Targeting a Dream Company?</h2>
+                        <p class="text-xs sm:text-sm text-indigo-200 md:max-w-xl leading-relaxed">Use our UnlockGoal AI to generate the exact interview rounds for top companies like Google, Microsoft, and Amazon. Get a custom cracking roadmap.</p>
+                    </div>
+                    <a href="unlockgoal.html" class="unlock-btn shrink-0 w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white text-purple-700 px-5 md:px-6 py-3 rounded-lg text-sm font-bold shadow-lg hover:shadow-xl transition relative z-10">
+                        <i class="fas fa-rocket"></i> Try UnlockGoal Now
+                    </a>
+                </div>
+
+                <div class="glass-card p-4 md:p-6">
+                    <h2 class="text-base md:text-lg font-bold text-slate-900 mb-5 md:mb-6">Your Placement Journey</h2>
+                    <div class="roadmap-container pl-3 md:pl-5">
+                        <div class="roadmap-line"></div>
+                        <div class="roadmap-progress-line"></div>
+                        
+                        <div class="step-item step-done">
+                            <div class="step-icon"><i class="fas fa-check"></i></div>
+                            <div class="step-content">
+                                <h4 class="font-bold text-xs sm:text-sm text-slate-800">Profile & Core Setup</h4>
+                                <p class="text-[10px] sm:text-xs text-slate-500 mt-1 leading-relaxed">Profile updated and CS fundamentals ready.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="step-item step-active">
+                            <div class="step-icon"><i class="fas fa-robot"></i></div>
+                            <div class="step-content">
+                                <div class="flex flex-wrap gap-2 justify-between items-start">
+                                    <h4 class="font-bold text-xs sm:text-sm text-blue-800">AI Mock Interviews</h4>
+                                    <span class="text-[9px] sm:text-[10px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">NOW</span>
+                                </div>
+                                <p class="text-[10px] sm:text-xs text-slate-600 mt-1 mb-2 sm:mb-3">Time to validate your skills through AI.</p>
+                                <a href="ai-practice.html" class="text-[10px] sm:text-xs font-bold text-white bg-blue-600 px-3 py-1.5 sm:px-4 sm:py-2 rounded-md hover:bg-blue-700 transition inline-block">Practice Now</a>
+                            </div>
+                        </div>
+                        
+                        <div class="step-item step-locked opacity-60">
+                            <div class="step-icon"><i class="fas fa-code-branch"></i></div>
+                            <div class="step-content">
+                                <h4 class="font-bold text-xs sm:text-sm text-slate-700">Unlock Goal Phase</h4>
+                                <p class="text-[10px] sm:text-xs text-slate-500 mt-1 leading-relaxed">Crack company specific actual interview rounds.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-4 space-y-5 md:space-y-8">
+                <div class="glass-card p-0 overflow-hidden">
+                    <div class="bg-brand-600 p-3 sm:p-4 text-white">
+                        <h2 class="text-xs sm:text-sm font-bold flex items-center gap-2"><i class="fas fa-laptop-code"></i> Upcoming Hackathons</h2>
+                    </div>
+                    <div class="p-3 sm:p-4 space-y-3 sm:space-y-4" id="hackathon-list"></div>
+                </div>
+
+                <div class="glass-card p-4 md:p-5">
+                    <h2 class="text-xs sm:text-sm font-bold text-slate-900 mb-3 sm:mb-4 flex items-center gap-2">
+                        <i class="fas fa-fire text-orange-500"></i> Recommended for You
+                    </h2>
+                    <ul class="space-y-2.5 sm:space-y-3" id="recommendations-list"></ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>
