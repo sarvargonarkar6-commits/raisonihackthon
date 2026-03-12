@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Job | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#4f46e5', 600: '#4338ca', 700: '#3730a3' },
+                        slate: { 850: '#1e293b' }
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F1F5F9; color: #334155; }
+        
+        .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 16px 12px; color: #64748B; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease; border-bottom: 3px solid transparent; }
+        .nav-link:hover { color: #4f46e5; }
+        .nav-link.active { color: #4f46e5; border-bottom: 3px solid #4f46e5; }
+
+        .card-base { background: white; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); overflow: hidden; }
+        
+        .form-input {
+            width: 100%; padding: 14px 16px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; font-size: 0.875rem; color: #1E293B; transition: all 0.3s ease;
+        }
+        .form-input:focus { background-color: #FFFFFF; border-color: #4f46e5; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); outline: none; }
+
+        .ai-magic-box { background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border: 2px dashed #818cf8; position: relative; }
+        
+        /* Custom Slider Styling */
+        input[type="range"] { accent-color: #4f46e5; height: 8px; }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                
+                <div class="flex items-center gap-3 pr-8 border-r border-gray-100 my-3">
+                    <div class="w-8 h-8 bg-brand-600 flex items-center justify-center text-white font-bold text-lg rounded-sm">H</div>
+                    <span class="text-xl font-bold text-slate-900 tracking-tight">BridgeAI <span class="text-brand-600">HR</span></span>
+                </div>
+
+                <div class="flex-1 flex space-x-2 overflow-x-auto no-scrollbar pl-6">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large opacity-70"></i> Dashboard</a>
+                    <a href="company-profile.html" class="nav-link"><i class="fas fa-building opacity-70"></i> Company Profile</a>
+                    <a href="post-job.html" class="nav-link active"><i class="fas fa-plus-circle"></i> Post a Job</a>
+                    <a href="manage-jobs.html" class="nav-link"><i class="fas fa-tasks opacity-70"></i> Manage Jobs</a>
+                    <a href="all-participants.html" class="nav-link"><i class="fas fa-users opacity-70"></i> Candidates</a>
+                    <a href="suggest-talent.html" class="nav-link"><i class="fas fa-search opacity-70"></i> Suggest Talent</a>
+                    <a href="accepted.html" class="nav-link text-green-600 hover:text-green-700"><i class="fas fa-check-circle opacity-70"></i> Accepted</a>
+                </div>
+
+                <div class="flex items-center gap-4 pl-4 border-l border-gray-100 my-3">
+                    <div class="flex items-center gap-2 cursor-pointer group relative">
+                        <div id="nav-profile-img-container" class="w-8 h-8 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center font-bold text-sm overflow-hidden"><i class="fas fa-user-tie"></i></div>
+                        <i class="fas fa-chevron-down text-xs text-slate-400 group-hover:text-slate-600"></i>
+                        
+                        <div class="absolute right-0 top-10 w-56 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                            <div class="p-4 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                                <p class="text-sm font-bold text-slate-800">HR Manager</p>
+                                <p class="text-xs text-brand-600 font-semibold mt-0.5">Recruitment Team</p>
+                            </div>
+                            <div class="p-2 space-y-1">
+                                <a href="company-profile.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-700 rounded-md transition"><i class="fas fa-cog w-4"></i> Settings</a>
+                                <hr class="my-1 border-gray-100">
+                                <button id="logout-btn" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition text-left"><i class="fas fa-sign-out-alt w-4"></i> Logout</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <header class="mb-8">
+            <h1 class="text-2xl font-bold text-slate-900">Create a New Role</h1>
+            <p class="text-slate-500 text-sm mt-1">Define the job parameters and let BridgeAI handle the initial candidate screening.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-2 space-y-6">
+                
+                <form id="job-post-form">
+                    <div class="card-base p-6 mb-6 bg-white">
+                        <h2 class="text-lg font-bold text-slate-800 mb-6 pb-4 border-b border-slate-100 flex items-center gap-2">
+                            <i class="fas fa-briefcase text-brand-500"></i> Role Details
+                        </h2>
+                        
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Job Title <span class="text-red-500">*</span></label>
+                                <input type="text" id="job-title" placeholder="e.g. Software Development Engineer" required class="form-input">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Required Skills <span class="text-red-500">*</span></label>
+                                <input type="text" id="job-skills" placeholder="e.g. React, Node.js, MongoDB (Comma separated)" required class="form-input">
+                                <p class="text-xs text-slate-500 mt-2">These skills will be prioritized by the AI during screening.</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Salary Package (LPA) <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-500 font-bold">₹</span>
+                                        <input type="number" id="job-salary" placeholder="e.g. 12" required class="form-input pl-8">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Job Location <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fas fa-map-marker-alt"></i></span>
+                                        <input type="text" id="job-location" placeholder="e.g. Pune, India" required class="form-input pl-10">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-base p-6 bg-white">
+                        <h2 class="text-lg font-bold text-slate-800 mb-6 pb-4 border-b border-slate-100 flex items-center gap-2">
+                            <i class="fas fa-bullseye text-brand-500"></i> Targeting & AI Settings
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Target Audience <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <select id="hiring-mode" class="form-input appearance-none cursor-pointer pr-10">
+                                            <option value="BlindMatch">Open to All (Blind Match)</option>
+                                            <option value="Campus">Specific Campus / University</option>
+                                        </select>
+                                        <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 pointer-events-none"><i class="fas fa-chevron-down text-xs"></i></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                    <label class="flex justify-between items-center text-sm font-bold text-slate-700 mb-2">
+                                        AI Passing Score
+                                        <span class="text-lg text-brand-600 font-extrabold bg-white px-2 py-0.5 rounded shadow-sm border border-slate-100"><span id="score-display">70</span>%</span>
+                                    </label>
+                                    <input type="range" id="passing-score" min="0" max="100" value="70" required class="w-full cursor-pointer">
+                                </div>
+                            </div>
+                            
+                            <div id="campus-name-group" class="hidden transition-all duration-300">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                                    <div>
+                                        <label class="block text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2">Target University</label>
+                                        <input type="text" id="university-name" placeholder="e.g. RTMNU" class="form-input bg-white border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500/10">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2">Target College</label>
+                                        <input type="text" id="campus-name" placeholder="e.g. YCCE" class="form-input bg-white border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500/10">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="ai-magic-box p-6 rounded-xl mt-4">
+                                <label class="flex items-center gap-2 text-sm font-bold text-brand-600 mb-3">
+                                    <i class="fas fa-wand-magic-sparkles"></i> AI Interview Instructions
+                                </label>
+                                <textarea id="ai-prompt" rows="4" placeholder="e.g. Focus on checking their understanding of React state management. Ask 1 scenario-based question about handling API failures..." required class="form-input resize-none bg-white"></textarea>
+                                <p class="text-xs text-slate-500 mt-2 font-medium">Be specific! The AI will strictly follow these instructions to interview candidates.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end gap-4">
+                        <button type="button" class="px-6 py-3 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition">Cancel</button>
+                        <button type="submit" id="submit-btn" class="px-8 py-3 bg-slate-900 text-white font-bold rounded-xl shadow-lg hover:bg-brand-600 hover:shadow-xl transition flex items-center gap-3 group">
+                            <i class="fas fa-rocket group-hover:-translate-y-1 transition-transform"></i> Publish & Activate AI
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="space-y-6">
+                
+                <div class="card-base p-6 bg-gradient-to-br from-brand-600 to-indigo-800 text-white">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4 text-xl backdrop-blur-sm">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">How AI Screening Works</h3>
+                    <p class="text-indigo-100 text-sm leading-relaxed opacity-90">Once published, our AI automatically interviews every applicant based on your instructions. Only candidates who cross your set <b>Passing Score</b> will be moved to your 'Candidates' list.</p>
+                </div>
+
+                <div class="card-base p-6">
+                    <h3 class="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wider border-b border-slate-100 pb-2">Job Visibility</h3>
+                    <div class="space-y-4 pt-2">
+                        <div class="flex items-start gap-3">
+                            <div class="mt-0.5 text-brand-500"><i class="fas fa-check-circle"></i></div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">Campus Reach</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Visible to students across 50+ affiliated colleges instantly.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="mt-0.5 text-brand-500"><i class="fas fa-check-circle"></i></div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">Real-time Tracking</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Track candidate application and interview progress live on your dashboard.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+    
+    <script type="module" src="../js/hr-core.js"></script>
+    <script>
+        // Toggle Campus Fields (LOGIC NOT CHANGED)
+        document.getElementById("hiring-mode").addEventListener("change", (e) => {
+            const campusGrp = document.getElementById("campus-name-group");
+            if (e.target.value === "Campus") {
+                campusGrp.classList.remove("hidden");
+                document.getElementById("university-name").required = true;
+                document.getElementById("campus-name").required = true;
+            } else {
+                campusGrp.classList.add("hidden");
+                document.getElementById("university-name").required = false;
+                document.getElementById("campus-name").required = false;
+            }
+        });
+
+        // Update Slider Number (LOGIC NOT CHANGED)
+        const scoreInput = document.getElementById("passing-score");
+        const scoreDisplay = document.getElementById("score-display");
+        
+        scoreInput.addEventListener("input", (e) => {
+            scoreDisplay.innerText = e.target.value;
+        });
+    </script>
+</body>
+</html>
