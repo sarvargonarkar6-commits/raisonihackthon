@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Smart Roadmap | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' } },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; overflow-x: hidden; }
+        
+        /* Updated Navigation Styles for Consistency and Mobile */
+        .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 12px 8px; color: #64748B; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease; border-bottom: 3px solid transparent; white-space: nowrap; }
+        @media (min-width: 768px) {
+            .nav-link { padding: 16px 12px; }
+        }
+        .nav-link:hover { color: #16a34a; }
+        .nav-link.active { color: #16a34a; border-bottom: 3px solid #16a34a; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .glass-card { background: white; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s ease; }
+        .glass-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* TIMELINE CSS */
+        .road-timeline { position: relative; width: 100%; padding: 20px 0; overflow: hidden; }
+        @media (min-width: 768px) {
+            .road-timeline { padding: 40px 0; }
+        }
+        
+        .road-bg { position: absolute; left: 10%; top: 0; bottom: 0; width: 40px; background: #1a1a1a; transform: translateX(-50%); border-radius: 20px; z-index: 1; border: 3px solid #333; }
+        .road-dashed { position: absolute; left: 10%; top: 0; bottom: 0; width: 3px; background: repeating-linear-gradient(to bottom, transparent, transparent 15px, #fff 15px, #fff 30px); transform: translateX(-50%); z-index: 2; }
+        
+        @media (min-width: 768px) {
+            .road-bg { left: 50%; width: 60px; border-radius: 30px; border: 4px solid #333; }
+            .road-dashed { left: 50%; width: 4px; }
+        }
+
+        .timeline-item { position: relative; z-index: 10; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; margin-bottom: 40px; width: 100%; gap: 10px; padding-left: calc(10% - 15px); }
+        
+        @media (min-width: 768px) {
+            .timeline-item { flex-direction: row; justify-content: center; margin-bottom: 50px; gap: 0; padding-left: 0; }
+            .timeline-item:nth-child(odd) { flex-direction: row-reverse; }
+        }
+
+        .timeline-content { width: 80%; background: white; padding: 12px; border-radius: 12px; border: 2px solid #E2E8F0; text-align: left; position: relative; transition: all 0.3s; margin-left: 10px; }
+        @media (min-width: 768px) {
+            .timeline-content { width: 40%; padding: 15px; text-align: center; margin-left: 0; }
+        }
+        .timeline-content:hover { border-color: #16a34a; transform: scale(1.02); }
+        
+        /* Pins styling */
+        .pin { width: 35px; height: 35px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; justify-content: center; align-items: center; color: white; font-weight: 900; font-size: 14px; margin: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.2); cursor: pointer; border: 3px solid white; transition: 0.3s; flex-shrink: 0; }
+        @media (min-width: 768px) {
+            .pin { width: 50px; height: 50px; font-size: 20px; margin: 0 15px; box-shadow: 0 5px 10px rgba(0,0,0,0.2); border: 4px solid white; }
+        }
+        .pin span { transform: rotate(45deg); }
+        .pin:hover { transform: rotate(-45deg) scale(1.1); }
+        
+        .pin-locked { background: #94a3b8; filter: grayscale(1); cursor: not-allowed; }
+        .pin-active { background: #eab308; animation: pulseRing 2s infinite; }
+        .pin-completed { background: #22c55e; }
+        
+        .pin-final { background: #ef4444; border-radius: 50%; transform: none; width: 45px; height: 45px; }
+        @media (min-width: 768px) {
+            .pin-final { width: 60px; height: 60px; }
+        }
+        .pin-final span { transform: none; }
+        .pin-final:hover { transform: scale(1.1); }
+        
+        @keyframes pulseRing { 0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(234, 179, 8, 0); } 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
+
+        /* MODALS & OTHERS */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); }
+        .modal-content { background: #F8FAFC; margin: 5% auto; width: 95%; max-width: 800px; height: 90%; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; }
+        @media (min-width: 768px) {
+            .modal-content { margin: 2% auto; border-radius: 24px; }
+        }
+        
+        .exam-overlay { position: fixed; inset: 0; background: #0F172A; z-index: 200; display: none; flex-direction: column; color: white; }
+        .camera-feed { position: absolute; top: 10px; right: 10px; width: 100px; height: 75px; border: 2px solid #16a34a; border-radius: 8px; background: black; object-fit: cover; z-index: 50; }
+        @media (min-width: 768px) {
+            .camera-feed { top: 20px; right: 20px; width: 180px; height: 120px; border: 3px solid #16a34a; border-radius: 10px; }
+        }
+
+        #code-compiler, #project-code-input { font-family: monospace; background: #1e293b; color: #10b981; padding: 12px; border-radius: 8px; width: 100%; outline: none; resize: none; border: 1px solid #475569; }
+        @media (min-width: 768px) {
+            #code-compiler, #project-code-input { padding: 15px; }
+        }
+        
+        .chat-bubble-ai { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px 12px 12px 0; padding: 10px 14px; max-width: 90%; align-self: flex-start; margin-bottom: 10px; font-size: 0.875rem; }
+        .chat-bubble-user { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px 12px 0 12px; padding: 10px 14px; max-width: 90%; align-self: flex-end; margin-bottom: 10px; font-size: 0.875rem; }
+        @media (min-width: 768px) {
+            .chat-bubble-ai, .chat-bubble-user { max-width: 85%; padding: 10px 15px; font-size: 1rem; }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        @media (min-width: 768px) { .custom-scrollbar::-webkit-scrollbar { width: 6px; } }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm shrink-0">
+        <div class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-2 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-2 md:gap-3 pr-3 md:pr-8 border-r border-gray-100 my-3">
+                    <div class="w-8 h-8 bg-brand-600 flex items-center justify-center text-white font-bold text-lg rounded-sm shrink-0">C</div>
+                    <span class="text-lg md:text-xl font-bold text-slate-900 tracking-tight hidden sm:block">BridgeAI</span>
+                </div>
+
+                <div class="flex-1 flex space-x-2 overflow-x-auto no-scrollbar pl-3 md:pl-6 items-center">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+                    <a href="roadmap.html" class="nav-link active"><i class="fas fa-map-signs"></i> Roadmap</a>
+                    <a href="interview.html" class="nav-link"><i class="fas fa-robot"></i> AI Interview</a>
+                    <a href="internship.html" class="nav-link"><i class="fas fa-laptop-code"></i> AI Internship</a>
+                    <a href="soft-skills.html" class="nav-link"><i class="fas fa-comments"></i> Soft Skills</a>
+                    <a href="resume.html" class="nav-link"><i class="fas fa-file-alt"></i> ATS Analyzer</a>
+                    <a href="jobs.html" class="nav-link"><i class="fas fa-briefcase"></i> Jobs</a>
+                    <a href="unlockgoal.html" class="nav-link text-purple-600 hover:border-purple-600 ml-2">
+                        <i class="fas fa-bullseye text-purple-500"></i> UnlockGoal
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-3 md:gap-4 pl-3 md:pl-4 border-l border-gray-100 my-3">
+                    <button class="hidden md:flex items-center gap-2 bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-yellow-200 transition">
+                        <i class="fas fa-crown"></i> Pro
+                    </button>
+                    <div class="flex items-center gap-2 cursor-pointer group relative">
+                        <div id="nav-profile-img-container" class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm overflow-hidden shrink-0">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs text-slate-400 group-hover:text-slate-600 hidden sm:block"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 w-full max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-2 sm:px-4 lg:px-8 py-4 md:py-8 fade-in">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-8 mb-6 md:mb-8">
+            
+            <div class="lg:col-span-7 space-y-5 md:space-y-6 flex flex-col h-[450px] md:h-[550px]">
+                <div class="glass-card flex flex-col h-full">
+                    <div class="bg-brand-600 text-white p-3 md:p-4 rounded-t-2xl flex justify-between items-center shrink-0">
+                        <h2 class="font-bold flex items-center gap-2 text-sm md:text-base"><i class="fas fa-robot text-lg md:text-xl"></i> AI Mentor</h2>
+                        <span class="text-[10px] md:text-xs bg-brand-500 px-2 py-1 rounded">Ask Anything</span>
+                    </div>
+                    <div id="chat-container" class="flex-1 p-3 md:p-4 overflow-y-auto flex flex-col custom-scrollbar bg-slate-50">
+                        <div class="chat-bubble-ai">
+                            Hello! I am your AI Mentor. Set your Target Role or ask me any roadmap-related doubts. I will reply in the language you use!
+                        </div>
+                    </div>
+                    <div class="p-2 md:p-3 bg-white border-t border-slate-200 rounded-b-2xl flex gap-2 shrink-0 items-center">
+                        <button onclick="startDictation()" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-100 hover:bg-red-50 hover:text-red-500 text-slate-500 transition flex justify-center items-center shrink-0" title="Speak to typing">
+                            <i class="fas fa-microphone text-sm md:text-base"></i>
+                        </button>
+                        <input type="text" id="chat-input" placeholder="Ask your doubt here..." class="flex-1 border border-slate-300 rounded-full px-3 md:px-4 py-1.5 md:py-2 outline-none focus:border-brand-500 text-xs md:text-sm" onkeypress="handleChatEnter(event)">
+                        <button onclick="sendChatMessage()" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-600 text-white hover:bg-brand-700 transition flex justify-center items-center shrink-0">
+                            <i class="fas fa-paper-plane text-xs md:text-base"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 space-y-5 md:space-y-6">
+                <div class="glass-card p-4 md:p-5 bg-gradient-to-br from-white to-brand-50 border-brand-200">
+                    <div class="flex justify-between items-center mb-3 md:mb-4">
+                        <h2 class="font-bold text-slate-800 text-sm md:text-base"><i class="fas fa-bullseye text-brand-500"></i> Target Job Role</h2>
+                        <span id="roadmap-count-badge" class="text-[10px] md:text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded font-bold">0/2 Active</span>
+                    </div>
+                    
+                    <div class="flex gap-2 mb-3 md:mb-4 bg-slate-100 p-1 rounded-lg" id="roadmap-tabs">
+                        <button id="tab-0" onclick="switchRoadmap(0)" class="flex-1 py-1.5 rounded-md text-xs md:text-sm font-bold bg-white shadow text-brand-600 transition truncate px-1">Roadmap 1</button>
+                        <button id="tab-1" onclick="switchRoadmap(1)" class="flex-1 py-1.5 rounded-md text-xs md:text-sm font-bold text-slate-500 hover:text-slate-700 transition truncate px-1">Roadmap 2</button>
+                    </div>
+
+                    <div id="roadmap-input-section">
+                        <input type="text" id="input-target-role" placeholder="e.g., Full Stack Developer..." class="w-full p-2.5 md:p-3 border border-slate-300 rounded-lg outline-none focus:border-brand-500 text-xs md:text-sm mb-2 md:mb-3">
+                        <button onclick="generateNewRoadmap()" id="generate-btn" class="w-full bg-brand-600 text-white py-2 md:py-2.5 rounded-lg font-bold hover:bg-brand-700 transition flex items-center justify-center gap-2 text-xs md:text-sm shadow-md">
+                            <i class="fas fa-magic"></i> Generate Road
+                        </button>
+                    </div>
+                    <div id="roadmap-locked-msg" class="hidden text-[10px] md:text-xs text-red-500 font-bold bg-red-50 p-2 rounded border border-red-100 mt-2 text-center">
+                        <i class="fas fa-lock"></i> Please complete this roadmap to unlock a new one. Max 2 allowed.
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 md:p-6 bg-white overflow-hidden relative">
+                    <h3 class="font-bold text-slate-800 mb-1 md:mb-2 text-center text-base md:text-lg">Your Path to Success</h3>
+                    <p class="text-[10px] md:text-xs text-slate-500 text-center mb-4 md:mb-6">Complete stages to unlock the final goal.</p>
+                    
+                    <div class="road-timeline" id="stages-timeline">
+                        <div class="road-bg"></div>
+                        <div class="road-dashed"></div>
+                        <div class="text-center text-[10px] md:text-sm text-slate-400 mt-6 md:mt-10 relative z-10 bg-white inline-block px-3 md:px-4 ml-[10%] md:ml-[50%] transform -translate-x-1/2 rounded-full border border-slate-200">Waiting for AI...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-4 md:p-6 w-full flex flex-col h-auto">
+            <h2 class="font-bold text-slate-800 mb-3 md:mb-4 flex items-center gap-2 text-base md:text-xl"><i class="fab fa-youtube text-red-600"></i> Video Player & Notes Maker</h2>
+            <div class="flex flex-col sm:flex-row gap-2 mb-4 w-full md:w-1/2">
+                <input type="text" id="yt-link-input" placeholder="Paste YouTube Link here..." class="flex-1 border border-slate-300 rounded-lg px-3 md:px-4 py-2 outline-none focus:border-red-500 text-xs md:text-sm">
+                <button onclick="loadYTVideo()" class="bg-red-600 text-white px-5 md:px-8 py-2 rounded-lg font-bold hover:bg-red-700 transition text-xs md:text-sm shrink-0 w-full sm:w-auto">Play</button>
+            </div>
+            
+            <div class="flex flex-col md:flex-row gap-4 md:gap-6 w-full">
+                <div class="w-full md:flex-[2] bg-black rounded-xl overflow-hidden relative shadow-inner aspect-video md:aspect-auto md:min-h-[350px]">
+                    <iframe id="yt-iframe" class="absolute inset-0 w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
+                    <div id="yt-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 font-bold p-4 text-center">
+                        <i class="fab fa-youtube text-3xl md:text-5xl mb-2 text-slate-700"></i>
+                        <span class="text-xs md:text-base">Video will play here</span>
+                    </div>
+                </div>
+                <div class="w-full md:flex-1 flex flex-col border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm h-[250px] md:h-auto">
+                    <div class="bg-yellow-100 text-yellow-800 p-2 md:p-3 font-bold text-center border-b border-yellow-200 flex items-center justify-between px-3 md:px-4">
+                        <span class="text-xs md:text-base"><i class="fas fa-edit"></i> Short Notes</span>
+                    </div>
+                    <textarea id="notes-area" class="flex-1 p-3 md:p-4 outline-none text-slate-700 custom-scrollbar resize-none leading-relaxed text-xs md:text-sm" placeholder="Type your important notes here while watching..."></textarea>
+                    <button onclick="downloadNotesPDF()" class="bg-slate-800 text-white p-2.5 md:p-3 font-bold hover:bg-slate-900 transition flex items-center justify-center gap-2 text-xs md:text-sm shrink-0">
+                        <i class="fas fa-download"></i> Download PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="learning-modal" class="modal">
+        <div class="modal-content relative">
+            <div class="bg-white p-3 md:p-5 border-b border-slate-200 flex justify-between items-center rounded-t-xl md:rounded-t-2xl shrink-0">
+                <div>
+                    <h2 class="text-base md:text-xl font-bold text-slate-900 leading-tight" id="modal-title">Stage Title</h2>
+                    <p class="text-[10px] md:text-xs text-slate-500 mt-0.5" id="modal-subtitle">Dual AI Verification System</p>
+                </div>
+                <button onclick="closeModal('learning-modal')" class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-slate-100 hover:bg-red-100 hover:text-red-500 transition flex items-center justify-center shrink-0"><i class="fas fa-times text-xs md:text-sm"></i></button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar bg-slate-50/50">
+                <div class="mb-5 md:mb-6" id="theory-section">
+                    <h3 class="font-bold text-slate-800 mb-2 md:mb-3 text-sm md:text-base"><i class="fas fa-book-open text-blue-500"></i> Part 1: Study Resources & Theory</h3>
+                    <div id="modules-container" class="space-y-2.5 md:space-y-3 mb-4"></div>
+                    
+                    <div class="bg-blue-50 border border-blue-200 p-3 md:p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <p class="font-bold text-blue-800 text-xs md:text-sm">Theory Verification Exam</p>
+                            <p class="text-[10px] md:text-xs text-blue-600 mt-0.5 md:mt-1">15 Questions | Proctoring On</p>
+                        </div>
+                        <button id="theory-exam-btn" onclick="startExamSetup('theory')" class="w-full sm:w-auto bg-blue-600 text-white px-4 md:px-5 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-sm text-xs md:text-sm">
+                            Take Theory Exam
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-slate-200 mb-5 md:mb-6">
+                
+                <div id="project-section" class="transition-all duration-300">
+                    <h3 class="font-bold text-slate-800 mb-2 md:mb-3 flex items-center gap-2 text-sm md:text-base">
+                        <i class="fas fa-code-branch text-brand-500"></i> Part 2: Project Implementation
+                        <span id="project-lock-icon" class="text-[9px] md:text-xs bg-slate-200 text-slate-500 px-1.5 md:px-2 py-0.5 rounded ml-1 md:ml-2"><i class="fas fa-lock"></i> Locked</span>
+                    </h3>
+                    
+                    <div class="bg-slate-800 text-white p-3 md:p-6 rounded-xl shadow-lg">
+                        <p class="text-slate-300 text-[11px] md:text-sm mb-4 md:mb-5 leading-relaxed" id="modal-project-task">--</p>
+                        
+                        <div class="border-2 border-dashed border-slate-500 rounded-xl p-3 md:p-6 text-center relative transition hover:border-slate-400 bg-slate-800/50">
+                            <input type="file" id="project-file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleFileUpload()">
+                            <div id="upload-content"><i class="fas fa-cloud-upload-alt text-xl md:text-3xl text-brand-400 mb-1.5 md:mb-3"></i><p class="font-bold text-xs md:text-base">1. Upload File (.zip)</p></div>
+                            <div id="upload-success" class="hidden flex-col items-center"><i class="fas fa-check-circle text-lg md:text-2xl text-green-500 mb-1.5 md:mb-2"></i><p class="font-bold text-green-400 text-xs md:text-base">File Uploaded</p></div>
+                        </div>
+
+                        <div id="code-paste-section" class="mt-4 hidden">
+                            <p class="text-[10px] md:text-xs text-brand-300 mb-1.5 md:mb-2 font-bold">2. Paste logic for AI Analysis:</p>
+                            <textarea id="project-code-input" rows="4" placeholder="Paste your main logic here..." class="w-full bg-slate-700 text-green-400 p-2.5 md:p-3 rounded outline-none border border-slate-600 custom-scrollbar text-xs md:text-sm"></textarea>
+                            <button onclick="verifyProjectCode()" class="mt-2.5 md:mt-3 bg-brand-600 hover:bg-brand-700 text-white px-3 md:px-4 py-2 rounded text-xs md:text-sm font-bold w-full transition shadow">Analyze & Unlock Project Exam</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-brand-50 border border-brand-200 p-3 md:p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mt-4">
+                        <div>
+                            <p class="font-bold text-brand-800 text-xs md:text-sm">Project Interview</p>
+                            <p class="text-[10px] md:text-xs text-brand-600 mt-0.5 md:mt-1">15 Questions | Proctoring On</p>
+                        </div>
+                        <button id="project-exam-btn" onclick="startExamSetup('project')" disabled class="w-full sm:w-auto bg-slate-300 text-slate-500 px-4 md:px-5 py-2 rounded-lg font-bold transition shadow-sm text-xs md:text-sm cursor-not-allowed">
+                            Take Project Interview
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="exam-interface" class="exam-overlay">
+        <video id="webcam" autoplay muted playsinline class="camera-feed"></video>
+        
+        <div id="anti-cheat-warning" class="hidden absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-600 px-4 md:px-6 py-1.5 md:py-2 rounded text-white font-bold animate-bounce z-50 text-xs md:text-base w-11/12 md:w-auto text-center shadow-lg"><i class="fas fa-exclamation-triangle"></i> Tab Switching Detected!</div>
+        
+        <div class="flex-1 flex items-center justify-center p-3 md:p-4 w-full h-full overflow-y-auto">
+            <div class="bg-slate-800/95 p-5 md:p-8 rounded-2xl max-w-3xl w-full border border-slate-600 shadow-2xl relative my-auto mt-20 md:mt-auto">
+                <div class="flex justify-between items-center mb-4 md:mb-6">
+                    <span id="exam-type-badge" class="text-brand-400 font-bold uppercase text-[9px] md:text-xs tracking-widest bg-brand-900/30 px-2 py-1 rounded border border-brand-500/20">AI Evaluation</span>
+                    <span class="text-slate-400 text-xs md:text-sm font-bold bg-slate-900 px-2 py-1 rounded">Q <span id="q-number" class="text-white">1</span>/15</span>
+                </div>
+                
+                <h2 id="exam-question" class="text-base md:text-xl font-bold mb-5 md:mb-6 text-white leading-relaxed">Loading...</h2>
+                
+                <div id="exam-options-container" class="space-y-2.5 md:space-y-3"></div>
+                
+                <div id="compiler-container" class="hidden">
+                    <textarea id="code-compiler" placeholder="Write your code logic here..." class="text-xs md:text-sm h-32 md:h-48"></textarea>
+                    <button onclick="submitCodeAnswer()" class="mt-4 bg-brand-600 hover:bg-brand-700 text-white px-5 md:px-6 py-2.5 rounded-lg font-bold transition w-full text-sm md:text-base shadow-lg">Submit Code</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-modal" class="modal">
+        <div class="bg-white m-auto p-5 md:p-8 rounded-2xl max-w-sm w-[90%] text-center shadow-2xl relative">
+            <div id="result-icon" class="text-4xl md:text-5xl mb-3 md:mb-4"></div>
+            <h2 id="result-title" class="text-lg md:text-xl font-bold mb-1.5 md:mb-2 text-slate-900"></h2>
+            <p id="result-msg" class="text-slate-600 mb-5 md:mb-6 text-xs md:text-sm font-medium"></p>
+            <div id="ai-feedback" class="text-left bg-slate-50 p-3 md:p-4 rounded-xl text-[10px] md:text-xs text-slate-700 mb-5 hidden border border-slate-200 max-h-40 overflow-y-auto custom-scrollbar"></div>
+            <button onclick="closeResult()" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 md:py-3 rounded-xl font-bold w-full transition text-sm md:text-base shadow-md">Continue Journey</button>
+        </div>
+    </div>
+
+    <script type="module" src="roadmap.js"></script>
+</body>
+</html>
