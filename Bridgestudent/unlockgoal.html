@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unlock Goal | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
+                        primary: { 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9' }
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Mobile ke liye scroll allow aur flex-col */
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; height: 100vh; overflow: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* Navbar specific - SYNCHRONIZED WITH DASHBOARD */
+        .nav-link { 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 4px; 
+            padding: 16px 5px; 
+            color: #64748B; 
+            font-weight: 700; 
+            font-size: 0.65rem; 
+            transition: all 0.2s ease; 
+            border-bottom: 3px solid transparent; 
+            white-space: nowrap; 
+        }
+        .nav-link i { font-size: 1.1em; } 
+        
+        /* Responsive scaling for medium and large screens */
+        @media (min-width: 768px) {
+            .nav-link { padding: 16px 6px; font-size: 0.7rem; gap: 5px; }
+        }
+        @media (min-width: 1024px) {
+            .nav-link { padding: 16px 10px; font-size: 0.75rem; gap: 6px; }
+        }
+        @media (min-width: 1280px) {
+            .nav-link { padding: 16px 14px; font-size: 0.85rem; gap: 8px; }
+        }
+        
+        .nav-link:hover { color: #16a34a; }
+        .nav-link.active { color: #16a34a; border-bottom: 3px solid #16a34a; }
+        
+        /* Specific override for UnlockGoal Tab */
+        .nav-link.active-purple { color: #9333ea !important; border-bottom: 3px solid #9333ea !important; }
+        .nav-link.active-purple:hover { color: #7c3aed !important; }
+
+        /* Nav container custom scrollbar */
+        .nav-scroll-container::-webkit-scrollbar { height: 2px; }
+        .nav-scroll-container::-webkit-scrollbar-track { background: transparent; }
+        .nav-scroll-container::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 2px; }
+        .nav-scroll-container { -ms-overflow-style: auto; scrollbar-width: thin; scrollbar-color: #E2E8F0 transparent; }
+        
+        /* CARDS & CONTAINERS */
+        .glass-card { background: white; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        
+        /* Main Content Layout Adjustments for Mobile */
+        .main-content-area { flex: 1; overflow-x: hidden; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding: 0.75rem; max-width: 1536px; margin: 0 auto; width: 100%; }
+        @media (min-width: 1024px) {
+            .main-content-area { flex-direction: row; gap: 1.5rem; padding: 1.5rem; overflow: hidden; }
+        }
+        
+        /* TIMELINE (Left Panel) */
+        .round-item { position: relative; padding-left: 24px; margin-bottom: 16px; }
+        @media (min-width: 1024px) {
+            .round-item { margin-bottom: 24px; }
+        }
+        .round-item::before { content: ''; position: absolute; left: 4px; top: 24px; bottom: -24px; width: 2px; background: #e2e8f0; }
+        .round-item:last-child::before { display: none; }
+        
+        @media (max-width: 1023px) {
+            .round-item::before { display: none; }
+        }
+
+        .round-dot { position: absolute; left: 0; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; border: 2px solid white; box-shadow: 0 0 0 2px #e2e8f0; transition: all 0.3s; }
+        .round-active .round-dot { background: #7c3aed; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2); animation: pulse-dot 1.5s infinite; }
+        .round-done .round-dot { background: #22c55e; box-shadow: 0 0 0 2px #bbf7d0; }
+        @keyframes pulse-dot { 0% { box-shadow: 0 0 0 0 rgba(124,58,237, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(124,58,237, 0); } 100% { box-shadow: 0 0 0 0 rgba(124,58,237, 0); } }
+
+        /* MCQ PALETTE */
+        .q-box { width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; border: 2px solid #e2e8f0; background: white; color: #64748b; transition: all 0.2s ease; }
+        .q-box.answered { background: #22c55e; color: white; border-color: #22c55e; }
+        .q-box.active { border-color: #7c3aed; color: #7c3aed; background: #f3e8ff; }
+
+        /* CHAT STYLES */
+        .chat-bubble { opacity: 0; animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .ai-msg { background: white; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 0 16px 16px 16px; color: #1e293b; font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); max-width: 90%; }
+        .user-msg { background: #9333ea; color: white; padding: 10px 16px; border-radius: 16px 16px 0 16px; margin-left: auto; max-width: 90%; width: fit-content; font-size: 0.9rem; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.2); }
+        @media (min-width: 768px) {
+            .ai-msg, .user-msg { max-width: 85%; }
+        }
+
+        /* HR AVATAR & PULSE */
+        .avatar-glow { animation: avatarPulse 2s infinite; }
+        @keyframes avatarPulse { 0% { box-shadow: 0 0 0 0 rgba(124,58,237, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(124,58,237, 0); } 100% { box-shadow: 0 0 0 0 rgba(124,58,237, 0); } }
+
+        /* SCROLLBARS */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #7c3aed; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col h-screen">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm shrink-0 w-full">
+        <div class="w-full px-2 sm:px-4">
+            <div class="flex justify-between items-center h-16 w-full max-w-[100%]">
+                
+                <div class="flex items-center gap-2 pr-2 md:pr-4 border-r border-gray-200 my-2 shrink-0">
+                    <div class="w-7 h-7 bg-brand-600 flex items-center justify-center text-white font-bold text-sm rounded-sm">C</div>
+                    <span class="text-base font-extrabold text-slate-900 tracking-tight hidden lg:block">BridgeAI</span>
+                </div>
+
+                <div class="flex-1 flex justify-start lg:justify-center overflow-x-auto nav-scroll-container px-1 md:px-2 items-center h-full">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+                    <a href="roadmap.html" class="nav-link"><i class="fas fa-map-signs"></i> Roadmap</a>
+                    <a href="interview.html" class="nav-link"><i class="fas fa-robot"></i> AI Interview</a>
+                    <a href="internship.html" class="nav-link"><i class="fas fa-laptop-code"></i> Internship</a>
+                    <a href="soft-skills.html" class="nav-link"><i class="fas fa-comments"></i> Soft Skills</a>
+                    <a href="resume.html" class="nav-link"><i class="fas fa-file-alt"></i> ATS Analyzer</a>
+                    <a href="jobs.html" class="nav-link"><i class="fas fa-briefcase"></i> Jobs</a>
+                    <a href="unlockgoal.html" class="nav-link active-purple">
+                        <i class="fas fa-bullseye"></i> UnlockGoal
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-2 pl-2 md:pl-4 border-l border-gray-200 my-2 shrink-0">
+                    <button class="hidden xl:flex items-center gap-1.5 bg-yellow-100 text-yellow-700 px-2.5 py-1 rounded-md text-[10px] font-bold hover:bg-yellow-200 transition">
+                        <i class="fas fa-crown"></i> Pro
+                    </button>
+                    
+                    <div class="flex items-center gap-1.5 cursor-pointer group relative">
+                        <div id="nav-profile-img-container" class="w-7 h-7 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 font-bold text-xs overflow-hidden shrink-0">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <i class="fas fa-chevron-down text-[10px] text-slate-400 group-hover:text-slate-600 hidden md:block"></i>
+                        
+                        <div class="absolute right-0 top-8 w-56 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                            <div class="p-4 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                                <p class="text-sm font-bold text-slate-800 truncate" id="dropdown-name">Om Dhamande</p>
+                                <p class="text-xs text-brand-600 font-semibold mt-0.5">Free Plan</p>
+                            </div>
+                            <div class="p-2 space-y-1">
+                                <a href="profile.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-700 rounded-md transition">
+                                    <i class="fas fa-user-circle w-4"></i> My Profile
+                                </a>
+                                <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-700 rounded-md transition">
+                                    <i class="fas fa-cog w-4"></i> Settings
+                                </a>
+                                <hr class="my-1 border-gray-100">
+                                <button onclick="logoutUser()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition text-left">
+                                    <i class="fas fa-sign-out-alt w-4"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="setup-phase" class="flex-1 flex items-center justify-center bg-[#F8FAFC] p-4">
+        <div class="glass-card p-6 sm:p-10 max-w-lg w-full text-center">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-3xl sm:text-4xl mx-auto mb-4 sm:mb-6">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">Unlock Your Goal</h1>
+            <p class="text-slate-500 mb-6 sm:mb-8 text-xs sm:text-sm">Enter your target company. We will simulate their exact interview process.</p>
+            
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="block text-[10px] sm:text-xs font-bold text-slate-600 uppercase mb-1">Target Company</label>
+                    <input type="text" id="target-company" placeholder="e.g. Google, Amazon..." class="w-full p-2.5 sm:p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-[10px] sm:text-xs font-bold text-slate-600 uppercase mb-1">Job Role</label>
+                    <input type="text" id="target-role" placeholder="e.g. Software Development Engineer" class="w-full p-2.5 sm:p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-primary-500 text-sm">
+                </div>
+                <button onclick="startFullInterview()" id="start-btn" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 sm:py-3 rounded-lg shadow-lg mt-4 flex justify-center items-center gap-2 transition text-sm sm:text-base">
+                    Create Simulation <i class="fas fa-arrow-right"></i>
+                </button>
+                <div id="loading-pattern" class="hidden flex justify-center items-center gap-2 text-primary-600 font-bold py-3 text-sm">
+                    <div class="loader"></div> Generating Rounds...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="interview-phase" class="hidden main-content-area">
+        
+        <aside class="w-full lg:w-64 glass-card p-3 sm:p-5 flex flex-col shrink-0">
+            <h2 class="font-black text-slate-900 text-base sm:text-lg mb-0.5 sm:mb-1 truncate" id="comp-disp">Company</h2>
+            <p class="text-[9px] sm:text-[10px] font-bold text-primary-600 uppercase tracking-widest mb-3 sm:mb-6 border-b border-slate-100 pb-2 sm:pb-3">Interview Process</p>
+            
+            <div class="flex-1 flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible no-scrollbar pb-1 lg:pb-0">
+                <div class="round-item round-active shrink-0 min-w-[130px] lg:min-w-0" id="rnd-1">
+                    <div class="round-dot"></div>
+                    <h4 class="font-bold text-[11px] sm:text-sm mt-0.5 lg:mt-0">Aptitude Round</h4>
+                    <p class="text-[9px] sm:text-xs text-slate-500 hidden lg:block">10 MCQs • 10 Mins</p>
+                </div>
+                <div class="round-item opacity-50 shrink-0 min-w-[130px] lg:min-w-0" id="rnd-2">
+                    <div class="round-dot"></div>
+                    <h4 class="font-bold text-[11px] sm:text-sm mt-0.5 lg:mt-0">Technical Round</h4>
+                    <p class="text-[9px] sm:text-xs text-slate-500 hidden lg:block">Live Coding & Output</p>
+                </div>
+                <div class="round-item opacity-50 shrink-0 min-w-[130px] lg:min-w-0" id="rnd-3">
+                    <div class="round-dot"></div>
+                    <h4 class="font-bold text-[11px] sm:text-sm mt-0.5 lg:mt-0">Situational Round</h4>
+                    <p class="text-[9px] sm:text-xs text-slate-500 hidden lg:block">Case Study / Bug Fix</p>
+                </div>
+                <div class="round-item opacity-50 shrink-0 min-w-[130px] lg:min-w-0" id="rnd-4">
+                    <div class="round-dot"></div>
+                    <h4 class="font-bold text-[11px] sm:text-sm mt-0.5 lg:mt-0">HR Interview</h4>
+                    <p class="text-[9px] sm:text-xs text-slate-500 hidden lg:block">Audio/Voice Interaction</p>
+                </div>
+            </div>
+            
+            <div id="anti-cheat-status" class="mt-2 lg:mt-4 p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg text-[10px] sm:text-xs font-bold text-green-700 flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2">
+                <i class="fas fa-shield-alt"></i> Proctoring Active
+            </div>
+        </aside>
+
+        <section class="flex-1 glass-card flex flex-col overflow-hidden relative border-t-4 border-t-primary-600 min-h-[500px]">
+            
+            <div id="panel-aptitude" class="hidden flex-1 flex flex-col h-full">
+                <div class="h-12 sm:h-14 bg-slate-50 border-b flex justify-between items-center px-3 sm:px-6 shrink-0">
+                    <h3 class="font-bold text-slate-800 text-xs sm:text-base"><i class="fas fa-list-ol text-primary-500 mr-1.5 sm:mr-2"></i> Aptitude Test</h3>
+                    <div class="bg-red-100 text-red-700 px-3 sm:px-4 py-1 rounded-full font-mono font-bold text-xs sm:text-lg" id="apt-timer">10:00</div>
+                </div>
+                
+                <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+                    <div class="flex-1 p-3 sm:p-8 overflow-y-auto custom-scrollbar" id="apt-q-area">
+                        <div class="text-center mt-10 sm:mt-20"><div class="loader mx-auto"></div><p class="mt-4 text-xs sm:text-base text-slate-500">Generating Questions...</p></div>
+                    </div>
+                    <div class="w-full lg:w-64 bg-slate-50 lg:border-l border-t lg:border-t-0 p-3 sm:p-4 flex flex-col shrink-0">
+                        <p class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase mb-2 sm:mb-3">Question Palette</p>
+                        <div class="flex flex-wrap lg:grid lg:grid-cols-4 gap-2 mb-3 lg:mb-6" id="apt-palette"></div>
+                        <div class="text-[10px] sm:text-xs text-slate-500 flex flex-row lg:flex-col gap-3 lg:gap-2 mb-3 lg:mb-auto">
+                            <div class="flex items-center gap-1.5 sm:gap-2"><div class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-sm"></div> Answered</div>
+                            <div class="flex items-center gap-1.5 sm:gap-2"><div class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-white border-2 border-slate-300 rounded-sm"></div> Unanswered</div>
+                        </div>
+                        <button onclick="finishAptitude()" class="w-full bg-primary-600 text-white font-bold py-2.5 sm:py-3 rounded-lg shadow hover:bg-primary-700 text-xs sm:text-base transition">Submit Section</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-technical" class="hidden flex-1 flex flex-col relative h-full">
+                
+                <div class="absolute bottom-4 right-4 lg:bottom-6 lg:right-6 z-[100] w-24 h-16 lg:w-40 lg:h-28 bg-black rounded-lg lg:rounded-xl border-2 border-red-500 overflow-hidden shadow-2xl">
+                    <video id="tech-cam" autoplay muted playsinline class="w-full h-full object-cover transform scale-x-[-1]"></video>
+                    <div class="absolute top-1 lg:top-1.5 left-1 lg:left-1.5 flex items-center gap-1 bg-black/50 px-1.5 lg:px-2 py-0.5 rounded text-[8px] lg:text-[10px] text-white font-bold">
+                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span> REC
+                    </div>
+                </div>
+
+                <div class="h-12 sm:h-14 bg-slate-900 border-b border-slate-700 flex justify-between items-center px-3 sm:px-6 shrink-0 text-white">
+                    <h3 class="font-bold text-xs sm:text-base"><i class="fas fa-code text-blue-400 mr-1.5 sm:mr-2"></i> Live Coding Round</h3>
+                    <div class="text-[10px] sm:text-sm font-mono text-slate-300">Tab Switching OFF</div>
+                </div>
+                
+                <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+                    <div class="w-full lg:w-1/3 bg-slate-50 border-b lg:border-b-0 lg:border-r p-3 lg:p-6 overflow-y-auto border-slate-200 h-40 lg:h-auto shrink-0 custom-scrollbar" id="tech-problem">
+                        <div class="loader mx-auto mt-6 lg:mt-10 border-t-primary-500"></div>
+                        <p class="text-center mt-3 lg:mt-4 text-slate-500 text-xs sm:text-sm">Fetching Problem Statement...</p>
+                    </div>
+                    
+                    <div class="flex-1 flex flex-col bg-[#1e1e1e]">
+                        <div class="h-10 sm:h-12 bg-[#252526] border-b border-[#333] flex items-center justify-between px-2 sm:px-4 shrink-0 overflow-x-auto no-scrollbar gap-2">
+                            <span class="text-[10px] sm:text-xs text-slate-400 font-mono whitespace-nowrap"><i class="fab fa-html5 text-orange-500 mr-1"></i> solution.html</span>
+                            <div class="flex gap-2 sm:gap-3 shrink-0">
+                                <button onclick="runTechCode()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 sm:px-5 py-1 sm:py-1.5 rounded text-[10px] sm:text-sm font-bold shadow transition flex items-center gap-1.5 sm:gap-2">
+                                    <i class="fas fa-play"></i> Run
+                                </button>
+                                <button onclick="finishTechnical()" class="bg-green-600 hover:bg-green-500 text-white px-3 sm:px-5 py-1 sm:py-1.5 rounded text-[10px] sm:text-sm font-bold shadow transition flex items-center gap-1.5 sm:gap-2">
+                                    <i class="fas fa-check-double"></i> Submit
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="monaco-container" class="flex-1 min-h-[40%] w-full relative"></div>
+                        
+                        <div class="h-1/3 min-h-[150px] sm:min-h-[200px] bg-white flex flex-col border-t-4 border-slate-800 shrink-0">
+                            <div class="bg-slate-100 text-[10px] sm:text-xs font-bold text-slate-600 px-3 sm:px-4 py-1.5 sm:py-2 border-b uppercase flex items-center gap-2">
+                                <i class="fas fa-desktop"></i> Output Preview
+                            </div>
+                            <iframe id="tech-preview" class="flex-1 w-full h-full border-none"></iframe>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-warning" class="hidden absolute inset-0 bg-red-900/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center text-white p-6 sm:p-8 text-center">
+                    <i class="fas fa-exclamation-triangle text-5xl sm:text-6xl text-yellow-400 mb-4 animate-bounce"></i>
+                    <h2 class="text-2xl sm:text-3xl font-black mb-2">TAB SWITCH DETECTED!</h2>
+                    <p class="mb-5 sm:mb-6 text-sm sm:text-base">Navigating away from the interview screen is strictly prohibited. This incident has been logged.</p>
+                    <button onclick="document.getElementById('tab-warning').classList.add('hidden')" class="bg-white text-red-900 px-5 sm:px-6 py-2 rounded-lg font-bold text-sm sm:text-base">I Understand, Return</button>
+                </div>
+            </div>
+
+            <div id="panel-situational" class="hidden flex-1 flex flex-col h-full">
+                <div class="h-12 sm:h-14 bg-slate-50 border-b flex justify-between items-center px-3 sm:px-6 shrink-0">
+                    <h3 class="font-bold text-slate-800 text-xs sm:text-base"><i class="fas fa-briefcase text-orange-500 mr-1.5 sm:mr-2"></i> Situational / Bug Fix</h3>
+                    <div class="bg-red-100 text-red-700 px-3 sm:px-4 py-1 rounded-full font-mono font-bold text-xs sm:text-base" id="sit-timer">15:00</div>
+                </div>
+                <div class="flex-1 p-4 sm:p-8 overflow-y-auto bg-white flex flex-col custom-scrollbar">
+                    <div id="sit-scenario" class="bg-orange-50 border border-orange-200 p-4 sm:p-6 rounded-xl mb-4 sm:mb-6 text-slate-800 leading-relaxed text-sm sm:text-base">
+                        <div class="loader mx-auto"></div>
+                    </div>
+                    <label class="font-bold text-slate-700 mb-1.5 sm:mb-2 text-xs sm:text-base">Your Solution / Strategy:</label>
+                    <textarea id="sit-answer" class="flex-1 w-full border border-slate-300 rounded-xl p-3 sm:p-4 outline-none focus:border-primary-500 font-mono text-xs sm:text-sm resize-none shadow-inner min-h-[150px] custom-scrollbar" placeholder="Type your detailed approach or pseudo-code here..."></textarea>
+                    <div class="text-right mt-3 sm:mt-4">
+                        <button onclick="finishSituational()" class="w-full sm:w-auto bg-primary-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-bold shadow-md hover:bg-primary-700 text-sm sm:text-base transition">Submit Strategy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-hr" class="hidden flex-1 flex flex-col bg-slate-50 h-full overflow-hidden relative">
+                
+                <div class="flex flex-col items-center p-4 sm:p-6 text-center shrink-0">
+                    <div class="relative w-20 h-20 sm:w-28 sm:h-28 mb-3 sm:mb-4 mt-2 sm:mt-4">
+                        <div class="absolute inset-0 rounded-full bg-primary-500 avatar-glow opacity-50" id="hr-glow" style="display: none;"></div>
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah&style=circle" class="w-full h-full rounded-full border-4 border-white relative z-10 bg-slate-200 shadow-xl" alt="HR">
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mb-1.5 sm:mb-2">Sarah (HR Manager)</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 max-w-md font-medium px-4" id="hr-status">"Welcome to the final round! Please click the button below to start our conversation."</p>
+                    
+                    <button id="start-hr-btn" onclick="initiateHRVoice()" class="bg-primary-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold shadow-lg hover:bg-primary-700 transition mt-4 sm:mt-5 text-sm sm:text-base">
+                        <i class="fas fa-play mr-2"></i> Start Conversation
+                    </button>
+                </div>
+
+                <div class="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 overflow-hidden flex flex-col pb-2">
+                    <div class="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 text-left flex-1 overflow-y-auto hidden text-xs sm:text-sm mb-2 custom-scrollbar" id="hr-chat-log"></div>
+                </div>
+
+                <div id="hr-controls" class="hidden flex-col items-center p-3 sm:p-4 shrink-0 bg-slate-100/50 backdrop-blur border-t border-slate-200">
+                    <button id="hr-mic-btn" class="w-14 h-14 sm:w-16 sm:h-16 bg-white border-2 border-slate-200 rounded-full text-slate-500 text-xl sm:text-2xl hover:border-primary-500 hover:text-primary-600 transition shadow flex items-center justify-center focus:outline-none shrink-0">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <p class="text-[10px] sm:text-xs text-slate-500 mt-2 sm:mt-3 font-bold uppercase tracking-widest" id="hr-mic-hint">Waiting for Sarah to finish...</p>
+                </div>
+
+                <div id="hr-finish-container" class="hidden flex-col items-center p-4 shrink-0 bg-slate-100/50 backdrop-blur border-t border-slate-200">
+                    <p class="text-sm font-bold text-slate-700 mb-3">Interview Conversation Completed!</p>
+                    <button onclick="generateFinalReport()" class="bg-primary-600 text-white px-8 py-2.5 rounded-full font-bold shadow-lg hover:bg-primary-700 transition">
+                        Submit Interview & Get Report <i class="fas fa-paper-plane ml-1"></i>
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+    </div>
+
+    <div id="report-phase" class="hidden main-content-area flex-col overflow-y-auto custom-scrollbar">
+        <div class="max-w-5xl mx-auto w-full space-y-6 sm:space-y-8 pb-10 mt-4 sm:mt-6">
+            <div class="text-center">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-3xl sm:text-4xl mx-auto mb-3 sm:mb-4 shadow-sm"><i class="fas fa-check-double"></i></div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Final Evaluation Report</h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1.5 sm:mt-2">Based on your performance across all 4 rounds.</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 w-full">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <p class="text-[10px] sm:text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Aptitude</p>
+                    <p class="text-2xl sm:text-3xl font-black text-slate-800" id="score-apt">0%</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <p class="text-[10px] sm:text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Technical</p>
+                    <p class="text-2xl sm:text-3xl font-black text-slate-800" id="score-tech">0%</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <p class="text-[10px] sm:text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Situational</p>
+                    <p class="text-2xl sm:text-3xl font-black text-slate-800" id="score-sit">0%</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <p class="text-[10px] sm:text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">HR Round</p>
+                    <p class="text-2xl sm:text-3xl font-black text-slate-800" id="score-hr">0%</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mt-4">
+                <div class="glass-card p-5 sm:p-6 text-center border-b-4 border-primary-500 flex flex-col justify-center">
+                    <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase mb-1.5 sm:mb-2">Overall Probability</p>
+                    <h2 class="text-4xl sm:text-5xl font-black text-slate-800" id="final-score">0%</h2>
+                </div>
+                <div class="md:col-span-2 glass-card p-5 sm:p-6">
+                    <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase mb-1.5 sm:mb-2">AI Feedback Summary</p>
+                    <p class="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium" id="final-feedback">Analyzing data...</p>
+                </div>
+            </div>
+
+            <div class="glass-card p-5 sm:p-8 border-t-4 border-t-blue-500">
+                <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6 flex items-center gap-2 border-b border-slate-100 pb-3 sm:pb-4">
+                    <i class="fas fa-map-signs text-blue-500"></i> Actionable Cracking Roadmap
+                </h2>
+                <div id="custom-roadmap-container" class="space-y-4 sm:space-y-6">
+                    <div class="text-center py-4"><div class="loader mx-auto"></div></div>
+                </div>
+            </div>
+            
+            <button onclick="window.location.reload()" class="w-full bg-slate-900 text-white font-bold py-3 sm:py-4 rounded-xl shadow-lg transition hover:bg-slate-800 text-sm sm:text-base">Start New Simulation</button>
+        </div>
+    </div>
+
+    <script src="unlockgoal.js"></script>
+</body>
+</html>
