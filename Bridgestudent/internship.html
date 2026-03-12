@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Virtual Internship | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a', 
+                            700: '#15803d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base layout for full screen */
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Mobile specific scroll for body */
+        @media (max-width: 1024px) {
+            body { height: auto; overflow-y: auto; min-height: 100vh; }
+        }
+
+        /* TOP NAV LINKS (Dashboard Sync) */
+        .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 12px 8px; color: #64748B; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease; border-bottom: 3px solid transparent; white-space: nowrap; }
+        @media (min-width: 768px) {
+            .nav-link { padding: 16px 12px; }
+        }
+        .nav-link:hover { color: #16a34a; }
+        .nav-link.active { color: #16a34a; border-bottom: 3px solid #16a34a; }
+
+        /* Custom Scrollbar for IDE */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        #chat-box::-webkit-scrollbar { width: 6px; }
+        #chat-box::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        
+        /* Message Animation */
+        .message-anim { animation: fadeSlide 0.4s ease-out forwards; opacity: 0; transform: translateY(10px); }
+        @keyframes fadeSlide { to { opacity: 1; transform: translateY(0); } }
+
+        /* AI Message Bubble Style */
+        .ai-msg {
+            background: rgba(30, 41, 59, 0.8);
+            border-left: 4px solid #4f46e5;
+            padding: 12px;
+            border-radius: 0 12px 12px 12px;
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ai-msg strong { color: #818cf8; font-weight: 700; display: block; margin-bottom: 4px; }
+        .ai-msg ul { list-style: none; padding-left: 0; margin-top: 8px; }
+        .ai-msg li { position: relative; padding-left: 16px; margin-bottom: 4px; color: #cbd5e1; }
+        .ai-msg li::before { content: '▹'; position: absolute; left: 0; color: #4f46e5; }
+        .ai-msg code { background: #0f172a; padding: 2px 6px; border-radius: 4px; color: #fbbf24; font-family: monospace; }
+
+        /* User Message Style */
+        .user-msg {
+            background: #4f46e5;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 12px 12px 0 12px;
+            margin-left: auto;
+            max-width: 80%;
+            width: fit-content;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 4px; height: 4px; background: #94a3b8; border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out both; margin: 0 1px;
+        }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm shrink-0">
+        <div class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-2 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                
+                <div class="flex items-center gap-2 md:gap-3 pr-3 md:pr-8 border-r border-gray-100 my-3">
+                    <div class="w-8 h-8 bg-brand-600 flex items-center justify-center text-white font-bold text-lg rounded-sm shrink-0">C</div>
+                    <span class="text-lg md:text-xl font-bold text-slate-900 tracking-tight hidden sm:block">BridgeAI</span>
+                </div>
+
+                <div class="flex-1 flex space-x-2 overflow-x-auto no-scrollbar pl-3 md:pl-6 items-center">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large opacity-70"></i> Dashboard</a>
+                    <a href="roadmap.html" class="nav-link"><i class="fas fa-map-signs opacity-70"></i> Roadmap</a>
+                    <a href="interview.html" class="nav-link"><i class="fas fa-robot opacity-70"></i> AI Interview</a>
+                    <a href="internship.html" class="nav-link active"><i class="fas fa-laptop-code"></i> AI Internship</a>
+                    <a href="soft-skills.html" class="nav-link"><i class="fas fa-comments opacity-70"></i> Soft Skills</a>
+                    <a href="resume.html" class="nav-link"><i class="fas fa-file-alt opacity-70"></i> ATS Analyzer</a>
+                    <a href="jobs.html" class="nav-link"><i class="fas fa-briefcase opacity-70"></i> Jobs</a>
+                    <a href="unlockgoal.html" class="nav-link text-purple-600 border-b-2 border-transparent hover:border-purple-600 ml-2">
+                        <i class="fas fa-bullseye text-purple-500"></i> UnlockGoal
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-3 md:gap-4 pl-3 md:pl-4 border-l border-gray-100 my-3">
+                    <button class="hidden md:flex items-center gap-2 bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-yellow-200 transition">
+                        <i class="fas fa-crown"></i> Pro
+                    </button>
+                    <div class="flex items-center gap-2 cursor-pointer group relative">
+                        <div id="nav-profile-img-container" class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm overflow-hidden shrink-0">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs text-slate-400 group-hover:text-slate-600 hidden sm:block"></i>
+                        
+                        <div class="absolute right-0 top-10 w-56 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                            <div class="p-4 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                                <p class="text-sm font-bold text-slate-800" id="dropdown-name">Intern</p>
+                                <p class="text-xs text-brand-600 font-semibold mt-0.5">Free Plan</p>
+                            </div>
+                            <div class="p-2 space-y-1">
+                                <a href="profile.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-700 rounded-md transition">
+                                    <i class="fas fa-user-circle w-4"></i> My Profile
+                                </a>
+                                <button onclick="logoutUser()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition text-left">
+                                    <i class="fas fa-sign-out-alt w-4"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 flex flex-col p-2 sm:p-4 md:p-6 max-w-[96%] 2xl:max-w-screen-2xl mx-auto w-full md:min-h-0 min-h-[1000px] lg:min-h-0 editor-wrapper">
+        
+        <div class="flex-1 flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-slate-700 bg-slate-900 text-slate-200 relative lg:h-full h-auto">
+            
+            <header class="h-14 bg-slate-900 border-b border-slate-700 flex items-center justify-between px-4 md:px-6 shrink-0 z-10 w-full">
+                <div class="flex items-center gap-3 md:gap-4 min-w-0">
+                    <div class="w-7 h-7 md:w-8 md:h-8 bg-indigo-600 rounded flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20 text-xs md:text-base shrink-0">AI</div>
+                    <h1 class="font-bold text-slate-200 tracking-wide text-xs md:text-base truncate">Day <span id="day-val">1</span>: <span id="role-val" class="text-indigo-400">Loading Role...</span></h1>
+                </div>
+                <div class="flex items-center gap-2 md:gap-3 shrink-0">
+                    <span class="text-[8px] md:text-[10px] text-slate-400 uppercase font-bold tracking-wider hidden sm:block">Progress</span>
+                    <div class="w-16 md:w-48 bg-slate-800 h-1.5 md:h-2 rounded-full overflow-hidden border border-slate-700">
+                        <div id="prog-bar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full transition-all duration-1000 shadow-[0_0_10px_rgba(99,102,241,0.5)]" style="width: 0%"></div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden w-full h-full">
+                
+                <aside class="w-full lg:w-80 h-[300px] lg:h-auto flex flex-col bg-slate-900 border-b lg:border-b-0 lg:border-r border-slate-800 z-10 shrink-0">
+                    <div class="p-3 md:p-4 border-b border-slate-800 bg-slate-800/50 flex items-center gap-3 backdrop-blur-sm shrink-0">
+                        <div class="relative shrink-0">
+                            <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center font-bold text-white shadow-lg border border-indigo-400/30 text-xs md:text-base">TL</div>
+                            <div class="absolute bottom-0 right-0 w-2.5 h-2.5 md:w-3 md:h-3 bg-green-500 rounded-full border-2 border-slate-900"></div>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs md:text-sm font-bold text-white truncate">Alex (AI Tech Lead)</p>
+                            <p class="text-[9px] md:text-[10px] text-indigo-300 font-mono truncate" id="ticket-status">● Fetching Ticket...</p>
+                        </div>
+                    </div>
+                    
+                    <div id="chat-box" class="flex-1 overflow-y-auto p-3 md:p-4 flex flex-col bg-slate-950/40 scroll-smooth"></div>
+
+                    <div class="p-3 md:p-4 border-t border-slate-800 bg-slate-900 shrink-0">
+                        <button id="sub-btn" onclick="submitCode()" disabled class="w-full bg-indigo-600 py-2.5 md:py-3 rounded-lg font-bold hover:bg-indigo-500 transition shadow-lg flex items-center justify-center gap-2 text-white border-t border-indigo-400 active:scale-95 duration-200 opacity-50 cursor-not-allowed text-xs md:text-sm">
+                            Submit Solution <i class="fas fa-check-circle text-[10px] md:text-xs"></i>
+                        </button>
+                    </div>
+                </aside>
+
+                <section class="flex-1 flex flex-col bg-[#1e1e1e] relative min-w-0 w-full h-[400px] lg:h-auto shrink-0">
+                    <div class="h-10 bg-[#1e1e1e] flex items-center px-3 md:px-4 justify-between border-b border-slate-800 shrink-0 w-full">
+                        <div class="flex items-center gap-2 min-w-0 pr-2">
+                            <i class="fas fa-code text-blue-400 text-xs shrink-0"></i>
+                            <span class="text-[10px] md:text-xs text-slate-400 font-mono truncate">workspace / <span id="file-name" class="text-slate-200 text-yellow-400">index.html</span></span>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 md:gap-3 shrink-0">
+                            <span class="text-[9px] md:text-[10px] text-slate-500 flex items-center gap-1 hidden sm:flex"><i class="fas fa-circle text-[5px] md:text-[6px] text-slate-600"></i> Auto-saved</span>
+                            <button onclick="runCode()" class="bg-green-600 hover:bg-green-500 text-white text-[10px] md:text-xs font-bold px-3 md:px-4 py-1 md:py-1.5 rounded flex items-center gap-1 md:gap-2 transition active:scale-95 shadow-lg shadow-green-900/50">
+                                <i class="fas fa-play text-[8px] md:text-[10px]"></i> Run
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 relative w-full h-full">
+                        <div id="editor-container" class="absolute inset-0"></div>
+                    </div>
+                </section>
+
+                <aside class="w-full lg:w-[35%] h-[400px] lg:h-auto bg-white flex flex-col shadow-2xl border-t lg:border-t-0 lg:border-l border-slate-800 shrink-0">
+                    <div class="h-10 bg-slate-100 border-b border-slate-300 text-[9px] md:text-[10px] text-slate-500 flex items-center px-3 md:px-4 font-bold justify-between shrink-0 w-full">
+                        <span class="flex items-center gap-1.5 text-slate-600"><i class="fas fa-desktop"></i> LIVE PREVIEW</span>
+                        <span class="text-[9px] md:text-xs text-slate-400 font-mono bg-white px-2 py-0.5 rounded border border-slate-200">localhost:3000</span>
+                    </div>
+                    <div class="flex-1 relative bg-white w-full h-full">
+                        <iframe id="preview-frame" class="w-full h-full border-none bg-white absolute inset-0"></iframe>
+                    </div>
+                </aside>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="succ-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[100] transition-opacity duration-300 p-4">
+        <div class="bg-slate-900 p-6 md:p-8 rounded-2xl md:rounded-[2rem] border border-indigo-500/50 text-center w-full max-w-sm shadow-2xl transform scale-100">
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4 animate-bounce">
+                <i class="fas fa-check text-2xl md:text-3xl text-green-500"></i>
+            </div>
+            <h2 class="text-xl md:text-2xl font-bold mb-2 text-white">PR Approved!</h2>
+            <p id="succ-fb" class="text-slate-400 text-xs md:text-sm mb-5 md:mb-6 leading-relaxed">Code looks clean. Logic is sound. Moving to next ticket.</p>
+            <button onclick="fetchNextTask()" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 py-2.5 md:py-3 rounded-xl font-bold text-white hover:shadow-lg hover:shadow-green-500/30 transition flex items-center justify-center gap-2 text-sm md:text-base">
+                Accept Next Ticket <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <script type="module" src="internship.js"></script>
+</body>
+</html>
