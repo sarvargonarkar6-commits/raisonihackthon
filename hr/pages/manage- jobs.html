@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Jobs | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 
+                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#4f46e5', 600: '#4338ca', 700: '#3730a3' },
+                        slate: { 850: '#1e293b' }
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F1F5F9; color: #334155; overflow-x: hidden; }
+        
+        .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 16px 12px; color: #64748B; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease; border-bottom: 3px solid transparent; }
+        .nav-link:hover { color: #4f46e5; }
+        .nav-link.active { color: #4f46e5; border-bottom: 3px solid #4f46e5; }
+        
+        .glass-card { background: white; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); overflow: hidden; }
+        .custom-table th { background: #f8fafc; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; color: #64748b; }
+        .custom-table tr { transition: all 0.2s ease; border-bottom: 1px solid #f1f5f9; }
+        
+        /* Modal Styles - Hidden by default */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .form-input { width: 100%; padding: 12px 16px; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; font-size: 0.875rem; transition: all 0.3s ease; }
+        .form-input:focus { background-color: #FFFFFF; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); outline: none; }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-3 pr-8 border-r border-gray-100 my-3">
+                    <div class="w-8 h-8 bg-brand-600 flex items-center justify-center text-white font-bold text-lg rounded-sm">H</div>
+                    <span class="text-xl font-bold text-slate-900 tracking-tight">BridgeAI <span class="text-brand-600">HR</span></span>
+                </div>
+
+                <div class="flex-1 flex space-x-2 overflow-x-auto no-scrollbar pl-6">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large opacity-70"></i> Dashboard</a>
+                    <a href="company-profile.html" class="nav-link"><i class="fas fa-building opacity-70"></i> Company Profile</a>
+                    <a href="post-job.html" class="nav-link"><i class="fas fa-plus-circle opacity-70"></i> Post a Job</a>
+                    <a href="manage-jobs.html" class="nav-link active"><i class="fas fa-tasks"></i> Manage Jobs</a>
+                    <a href="all-participants.html" class="nav-link"><i class="fas fa-users opacity-70"></i> Candidates</a>
+                    <a href="suggest-talent.html" class="nav-link"><i class="fas fa-search opacity-70"></i> Suggest Talent</a>
+                    <a href="accepted.html" class="nav-link text-green-600 hover:text-green-700"><i class="fas fa-check-circle opacity-70"></i> Accepted</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Manage Your Jobs</h1>
+                <p class="text-slate-500 mt-1 text-sm font-medium">View, edit, or remove jobs that are no longer hiring.</p>
+            </div>
+            <a href="post-job.html" class="bg-slate-900 hover:bg-brand-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg transition flex items-center gap-2">
+                <i class="fas fa-plus"></i> Create New Job
+            </a>
+        </header>
+
+        <div class="glass-card border border-slate-200 shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full custom-table">
+                    <thead>
+                        <tr>
+                            <th class="py-5 px-6 text-left">Job Title</th>
+                            <th class="py-5 px-6 text-left">Package (LPA)</th>
+                            <th class="py-5 px-6 text-left">Location</th>
+                            <th class="py-5 px-6 text-center">Status</th>
+                            <th class="py-5 px-6 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manage-jobs-list" class="divide-y divide-slate-100">
+                        
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="py-4 px-6 font-bold text-slate-800">Software Development Engineer</td>
+                            <td class="py-4 px-6 text-slate-600 font-medium">₹12 LPA</td>
+                            <td class="py-4 px-6 text-slate-600">Pune, India</td>
+                            <td class="py-4 px-6 text-center"><span class="bg-green-100 text-green-700 py-1 px-3 rounded-full font-bold text-[10px] uppercase">Active</span></td>
+                            <td class="py-4 px-6 text-right">
+                                <button class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-4 py-2 rounded-lg text-xs font-bold transition-colors shadow-sm inline-flex items-center gap-2 mr-2" onclick="alert('Dummy Data: Only real jobs can be edited!')"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg text-xs font-bold transition-colors shadow-sm inline-flex items-center gap-2" onclick="alert('Dummy Data: Only real jobs can be deleted!')"><i class="fas fa-trash-alt"></i> Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="editJobModal" class="modal">
+        <div class="modal-content relative">
+            <button onclick="closeEditModal()" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 text-xl"><i class="fas fa-times"></i></button>
+            
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-b pb-4"><i class="fas fa-edit text-brand-500 mr-2"></i> Edit Job Details</h2>
+
+            <form id="edit-job-form" class="space-y-4">
+                <input type="hidden" id="edit-job-id">
+                <input type="hidden" id="edit-job-original-title">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Job Title</label>
+                    <input type="text" id="edit-job-title" required class="form-input">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Required Skills</label>
+                    <input type="text" id="edit-job-skills" required class="form-input">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Package (LPA)</label>
+                        <input type="number" id="edit-job-salary" required class="form-input">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Location</label>
+                        <input type="text" id="edit-job-location" required class="form-input">
+                    </div>
+                </div>
+
+                <button type="submit" id="update-btn" class="w-full mt-6 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                    <i class="fas fa-save"></i> Update Job
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal UI Open/Close Logic
+        function closeEditModal() { document.getElementById('editJobModal').style.display = 'none'; }
+    </script>
+    <script type="module" src="../js/hr-core.js"></script>
+</body>
+</html>
