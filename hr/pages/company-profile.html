@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Profile | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#4f46e5', 600: '#4338ca', 700: '#3730a3' },
+                        slate: { 850: '#1e293b' }
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F1F5F9; color: #334155; }
+        
+        .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 16px 12px; color: #64748B; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease; border-bottom: 3px solid transparent; }
+        .nav-link:hover { color: #4f46e5; }
+        .nav-link.active { color: #4f46e5; border-bottom: 3px solid #4f46e5; }
+
+        .card-base { background: white; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        
+        .form-input {
+            width: 100%; px-4; py-3; bg-white; border: 1px solid #E2E8F0; border-radius: 10px; outline: none; font-size: 0.9rem; transition: all 0.2s;
+        }
+        .form-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+
+        .logo-preview-box {
+            width: 80px; height: 80px; border-radius: 12px; background: #F8FAFC; border: 2px dashed #CBD5E1; display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-3 pr-8 border-r border-gray-100 my-3">
+                    <div class="w-8 h-8 bg-brand-600 flex items-center justify-center text-white font-bold text-lg rounded-sm">H</div>
+                    <span class="text-xl font-bold text-slate-900 tracking-tight">BridgeAI <span class="text-brand-600">HR</span></span>
+                </div>
+                <div class="flex-1 flex space-x-2 overflow-x-auto no-scrollbar pl-6">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large opacity-70"></i> Dashboard</a>
+                    <a href="company-profile.html" class="nav-link active"><i class="fas fa-building"></i> Company Profile</a>
+                    <a href="post-job.html" class="nav-link"><i class="fas fa-plus-circle opacity-70"></i> Post a Job</a>
+                    <a href="manage-jobs.html" class="nav-link"><i class="fas fa-tasks opacity-70"></i> Manage Jobs</a>
+                    <a href="all-participants.html" class="nav-link"><i class="fas fa-users opacity-70"></i> Candidates</a>
+                    <a href="suggest-talent.html" class="nav-link"><i class="fas fa-search opacity-70"></i> Suggest Talent</a>
+                    <a href="accepted.html" class="nav-link text-green-600 hover:text-green-700"><i class="fas fa-check-circle opacity-70"></i> Accepted</a>
+                </div>
+                <div class="flex items-center gap-4 pl-4 border-l border-gray-100 my-3">
+                    <div class="flex items-center gap-2 cursor-pointer group relative">
+                        <div id="nav-profile-img-container" class="w-8 h-8 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center font-bold text-sm overflow-hidden"><i class="fas fa-user-tie"></i></div>
+                        <i class="fas fa-chevron-down text-xs text-slate-400 group-hover:text-slate-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <header class="mb-8">
+            <h1 class="text-2xl font-bold text-slate-900">Company Settings</h1>
+            <p class="text-slate-500 text-sm">Manage your company details and branding visible to candidates.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-2 space-y-6">
+                
+                <form id="company-profile-form">
+                    <div class="card-base p-6 mb-6 bg-white">
+                        <h2 class="text-lg font-bold text-slate-800 mb-6 pb-4 border-b border-slate-100">General Information</h2>
+                        
+                        <div class="flex items-start gap-6 mb-8">
+                            <div class="logo-preview-box shadow-sm flex-shrink-0" id="logo-preview-container">
+                                <span id="logo-placeholder" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Logo</span>
+                                <img id="logo-img" src="" alt="Company Logo" class="w-full h-full object-cover hidden">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">Company Logo</label>
+                                <p class="text-xs text-slate-500 mb-3">This will be displayed on your job posts. Preferred size: Square (1:1).</p>
+                                <label for="logo-upload" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 hover:border-brand-500 text-slate-700 hover:text-brand-600 rounded-lg font-medium text-sm cursor-pointer transition shadow-sm">
+                                    <i class="fas fa-upload"></i> Upload New Image
+                                </label>
+                                <input type="file" id="logo-upload" accept="image/png, image/jpeg" class="hidden">
+                                <input type="hidden" id="logo-base64"> 
+                                <p class="text-[11px] text-slate-400 mt-2">Max file size: 1MB (JPG, PNG)</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Company Legal Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="company-name" placeholder="e.g. TechNova Innovations Pvt Ltd" required 
+                                    class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition">
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Industry Type <span class="text-red-500">*</span></label>
+                                    <select id="industry-type" required class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition cursor-pointer">
+                                        <option value="">Select Industry</option>
+                                        <option value="IT & Software">IT & Software</option>
+                                        <option value="Finance & Fintech">Finance & Fintech</option>
+                                        <option value="Manufacturing">Manufacturing</option>
+                                        <option value="EdTech">EdTech</option>
+                                        <option value="E-commerce">E-commerce</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Website Link <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fas fa-globe"></i></span>
+                                        <input type="url" id="company-contact" placeholder="https://yourcompany.com" required 
+                                            class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-base p-6 bg-white">
+                        <h2 class="text-lg font-bold text-slate-800 mb-6 pb-4 border-b border-slate-100">Company Details</h2>
+                        <div class="space-y-5">
+                             <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Headquarters Location <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fas fa-map-marker-alt"></i></span>
+                                    <input type="text" id="company-location" placeholder="e.g. Mumbai, India" required 
+                                        class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">About Company & Culture <span class="text-red-500">*</span></label>
+                                <textarea id="company-desc" rows="6" placeholder="Tell students about your company mission, values, and why it's a great place to work..." required 
+                                    class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none text-sm focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition resize-none"></textarea>
+                                <p class="text-xs text-slate-500 mt-2 text-right">Keep it engaging and concise.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end gap-4">
+                        <button type="button" class="px-6 py-3 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition">Cancel</button>
+                        <button type="submit" id="save-profile-btn" class="px-8 py-3 bg-brand-600 text-white font-bold rounded-xl shadow-lg hover:bg-brand-700 hover:shadow-xl transition flex items-center gap-2">
+                            <i class="fas fa-check"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="space-y-6">
+                <div class="card-base p-6 bg-indigo-50 border-indigo-100">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-brand-600 text-white rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 mb-1">Why this matters?</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">A complete profile builds trust. Students are <span class="font-bold text-brand-600">3x more likely</span> to apply to companies with a clear description and logo.</p>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="card-base p-6">
+                    <h3 class="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wider">Profile Checklist</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-3 text-sm text-slate-600">
+                            <i class="fas fa-check-circle text-green-500"></i> Company Logo Uploaded
+                        </li>
+                        <li class="flex items-center gap-3 text-sm text-slate-600">
+                            <i class="fas fa-check-circle text-green-500"></i> Valid Website Link
+                        </li>
+                        <li class="flex items-center gap-3 text-sm text-slate-600">
+                            <i class="fas fa-circle text-slate-200"></i> Detailed Description (>100 words)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script type="module" src="../js/hr-core.js"></script>
+
+    <script>
+        const logoUpload = document.getElementById('logo-upload');
+        const logoImg = document.getElementById('logo-img');
+        const logoPlaceholder = document.getElementById('logo-placeholder');
+        const logoBase64Input = document.getElementById('logo-base64');
+
+        logoUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            
+            if (file) {
+                if(file.size > 1024 * 1024) {
+                    alert("File size is too large! Please upload an image under 1MB.");
+                    logoUpload.value = ""; 
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    const base64String = reader.result;
+                    logoImg.src = base64String;
+                    logoImg.classList.remove('hidden');
+                    logoPlaceholder.classList.add('hidden');
+                    logoBase64Input.value = base64String;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>
