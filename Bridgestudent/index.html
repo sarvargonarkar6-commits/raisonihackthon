@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BridgeAI | Modern Tech Careers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            400: '#38bdf8', // Light Blue
+                            500: '#0ea5e9', // Sky Blue
+                            600: '#0284c7',
+                            primary: '#4f46e5', // Indigo
+                            secondary: '#8b5cf6', // Violet
+                        }
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        /* Techy Grid Background - Light Mode */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+
+        /* Glassmorphism Cards - Light Mode */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Gradient Text */
+        .text-gradient {
+            background: linear-gradient(135deg, #4f46e5 0%, #0ea5e9 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Input Focus Glow */
+        .input-glow:focus {
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15), inset 0 0 0 1px rgba(79, 70, 229, 0.3);
+            border-color: #4f46e5;
+        }
+
+        /* Form Transition */
+        .form-section { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hidden-form { opacity: 0; transform: translateY(10px); pointer-events: none; position: absolute; visibility: hidden; }
+        .active-form { opacity: 1; transform: translateY(0); position: relative; visibility: visible; }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-primary selection:text-white relative">
+
+    <div class="fixed inset-0 z-[-1] bg-slate-50">
+        <div class="absolute inset-0 bg-grid"></div>
+        <div class="absolute top-0 -left-4 w-72 h-72 bg-brand-secondary rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-blob"></div>
+        <div class="absolute top-0 -right-4 w-72 h-72 bg-brand-primary rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-brand-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <nav class="fixed w-full top-0 z-50 transition-all duration-300 pt-4 px-4">
+        <div class="max-w-7xl mx-auto glass-panel rounded-2xl px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-3 cursor-pointer group">
+                    <div class="w-9 h-9 bg-gradient-to-tr from-brand-primary to-brand-secondary rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:shadow-brand-primary/30 transition-all duration-300 group-hover:rotate-6">
+                        <i data-lucide="cpu" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xl font-extrabold tracking-tight text-slate-900">BridgeAI</span>
+                </div>
+                
+                <div class="hidden md:flex gap-8 text-sm font-medium text-slate-500">
+                    <a href="#" class="hover:text-brand-primary transition-colors">Explore</a>
+                    <a href="#" class="hover:text-brand-primary transition-colors">Problems</a>
+                    <a href="#" class="hover:text-brand-primary transition-colors">Contests</a>
+                    <a href="#" class="hover:text-brand-primary transition-colors">Interview Prep</a>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="document.getElementById('auth-section').scrollIntoView({behavior: 'smooth'})" class="hidden md:block px-4 py-2 text-sm font-semibold text-slate-600 hover:text-brand-primary transition-colors">
+                    Log in
+                </button>
+                <button onclick="document.getElementById('auth-section').scrollIntoView({behavior: 'smooth'})" class="px-5 py-2.5 bg-brand-primary text-white text-sm font-bold rounded-xl hover:bg-brand-primary/90 hover:scale-105 transition-all duration-300 shadow-[0_4px_15px_rgba(79,70,229,0.3)]">
+                    Get Started
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 lg:px-8 relative z-10">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+            
+            <div class="animate-fade-in">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel text-slate-700 text-xs font-semibold tracking-wide mb-8 border border-slate-200">
+                    <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+                    v2.0 Beta is Live
+                </div>
+                
+                <h1 class="text-5xl lg:text-7xl font-extrabold text-slate-900 leading-[1.1] mb-6 tracking-tight">
+                    Level up your <br>
+                    <span class="text-gradient">Engineering</span> Career.
+                </h1>
+                
+                <p class="text-lg text-slate-600 mb-10 leading-relaxed max-w-lg font-light">
+                    The modern standard for technical interview preparation. Master algorithms, system design, and land offers from top-tier tech companies.
+                </p>
+                
+                <div class="flex items-center gap-6 text-sm font-medium text-slate-600 mb-8">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="check-circle-2" class="w-5 h-5 text-brand-500"></i> AI Code Reviews
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="check-circle-2" class="w-5 h-5 text-brand-primary"></i> 10k+ Problems
+                    </div>
+                </div>
+            </div>
+
+            <div id="auth-section" class="relative z-10 animate-fade-in" style="animation-delay: 0.2s;">
+                <div class="absolute -right-12 -top-12 w-64 bg-slate-900 p-4 rounded-xl border border-slate-800 hidden lg:block opacity-80 transform rotate-6 z-0 shadow-2xl">
+                    <div class="flex gap-2 mb-3">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <div class="font-mono text-xs text-brand-400">
+                        <span class="text-brand-secondary">function</span> solve(nums) {<br>
+                        &nbsp;&nbsp;<span class="text-slate-400">return</span> nums.sort();<br>
+                        }
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-8 w-full max-w-md mx-auto relative z-10 border-slate-200">
+                    
+                    <div class="mb-8">
+                        <h2 id="formTitle" class="text-2xl font-bold text-slate-900 mb-2">Welcome back</h2>
+                        <p id="formSubtitle" class="text-slate-500 text-sm">Enter your details to access your workspace.</p>
+                    </div>
+
+                    <div id="loginSection" class="form-section active-form">
+                        <form id="loginForm" class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Email address</label>
+                                <input type="email" id="loginEmail" required placeholder="name@company.com" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none input-glow transition-all text-sm">
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="block text-sm font-medium text-slate-700">Password</label>
+                                    <a href="#" class="text-xs text-brand-primary hover:text-brand-secondary transition-colors">Forgot password?</a>
+                                </div>
+                                <input type="password" id="loginPass" required placeholder="••••••••" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none input-glow transition-all text-sm">
+                            </div>
+                            <button type="submit" class="w-full py-3 mt-4 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all flex justify-center items-center gap-2 group shadow-md">
+                                Sign In <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+                        </form>
+                        <p class="text-center text-slate-500 text-sm mt-6">
+                            Don't have an account? <button type="button" id="goToSignup" class="text-brand-primary font-bold hover:text-brand-600 transition-colors">Sign up for free</button>
+                        </p>
+                    </div>
+
+                    <div id="signupSection" class="form-section hidden-form">
+                        <form id="signupForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+                                <input type="text" id="signupName" required placeholder="John Doe" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none input-glow transition-all text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Email address</label>
+                                <input type="email" id="signupEmail" required placeholder="name@company.com" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none input-glow transition-all text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                                <input type="password" id="signupPass" required placeholder="Create a strong password" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none input-glow transition-all text-sm">
+                            </div>
+                            <button type="submit" class="w-full py-3 mt-4 bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-bold rounded-xl hover:opacity-90 transition-opacity flex justify-center items-center gap-2 shadow-lg shadow-brand-primary/30">
+                                Create Account
+                            </button>
+                        </form>
+                        <p class="text-center text-slate-500 text-sm mt-6">
+                            Already have an account? <button type="button" id="goToLogin" class="text-brand-primary font-bold hover:text-brand-600 transition-colors">Log in</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="border-y border-slate-200 bg-white/50 backdrop-blur-sm py-10 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-slate-500 font-bold tracking-widest uppercase mb-8">Our users get hired at</p>
+            <div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+                <h3 class="text-2xl font-bold font-mono text-slate-800">Google</h3>
+                <h3 class="text-2xl font-bold font-mono text-slate-800">Amazon</h3>
+                <h3 class="text-2xl font-bold font-mono text-slate-800">Meta</h3>
+                <h3 class="text-2xl font-bold font-mono text-slate-800">Apple</h3>
+                <h3 class="text-2xl font-bold font-mono text-slate-800">Netflix</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="py-24 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Everything you need to succeed</h2>
+                <p class="text-slate-600 text-lg max-w-2xl mx-auto">A complete ecosystem designed to take you from a beginner to a top-tier software engineer.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                
+                <div class="glass-panel p-8 rounded-2xl hover:border-brand-500/30 transition-colors group cursor-default">
+                    <div class="w-12 h-12 rounded-lg bg-brand-50 text-brand-500 border border-brand-100 flex items-center justify-center mb-6 group-hover:bg-brand-500 group-hover:text-white transition-all shadow-sm">
+                        <i data-lucide="code" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-900 mb-3">Algorithmic Mastery</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">Curated lists of the most frequently asked Data Structure and Algorithm questions.</p>
+                    <a href="#" class="text-brand-500 text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all">Start practicing <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+                </div>
+
+                <div class="glass-panel p-8 rounded-2xl hover:border-brand-primary/30 transition-colors group cursor-default">
+                    <div class="w-12 h-12 rounded-lg bg-indigo-50 text-brand-primary border border-indigo-100 flex items-center justify-center mb-6 group-hover:bg-brand-primary group-hover:text-white transition-all shadow-sm">
+                        <i data-lucide="server" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-900 mb-3">System Design</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">Learn to build scalable architectures. Essential for senior engineer interviews.</p>
+                    <a href="#" class="text-brand-primary text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all">Learn design <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+                </div>
+
+                <div class="glass-panel p-8 rounded-2xl hover:border-brand-secondary/30 transition-colors group cursor-default">
+                    <div class="w-12 h-12 rounded-lg bg-purple-50 text-brand-secondary border border-purple-100 flex items-center justify-center mb-6 group-hover:bg-brand-secondary group-hover:text-white transition-all shadow-sm">
+                        <i data-lucide="bot" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-900 mb-3">AI Mock Interviews</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">Simulate real interview environments with our AI trained on thousands of tech interviews.</p>
+                    <a href="#" class="text-brand-secondary text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all">Try AI Mock <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-slate-200 bg-white py-12 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center text-white font-bold shadow-md">
+                    <i data-lucide="cpu" class="w-4 h-4"></i>
+                </div>
+                <span class="text-lg font-bold text-slate-900">BridgeAI</span>
+            </div>
+            <div class="flex gap-6 text-sm font-medium text-slate-500">
+                <a href="#" class="hover:text-brand-primary transition-colors">Privacy</a>
+                <a href="#" class="hover:text-brand-primary transition-colors">Terms</a>
+                <a href="#" class="hover:text-brand-primary transition-colors">GitHub</a>
+                <a href="#" class="hover:text-brand-primary transition-colors">Twitter</a>
+            </div>
+            <p class="text-slate-500 text-sm">© 2026 BridgeAI Inc.</p>
+        </div>
+    </footer>
+
+    <script type="module" src="auth.js"></script>
+</body>
+</html>
