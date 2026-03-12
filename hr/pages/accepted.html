@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accepted Candidates | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#4f46e5', 600: '#4338ca', 700: '#3730a3' }
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; overflow-x: hidden; }
+        
+        .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 16px 12px; color: #64748B; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease; border-bottom: 3px solid transparent; }
+        .nav-link:hover { color: #4f46e5; }
+        .nav-link.active { color: #16a34a; border-bottom: 3px solid #16a34a; }
+
+        .glass-card { background: white; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; overflow: hidden; }
+        
+        .custom-table th { background: #f8fafc; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; color: #64748b; }
+        .custom-table tr { transition: all 0.2s ease; border-bottom: 1px solid #f1f5f9; }
+        .custom-table tr:hover { background-color: #f8fafc; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* Risk Badges */
+        .risk-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+        .risk-low { background: #dcfce7; color: #16a34a; }
+        .risk-med { background: #fef08a; color: #ca8a04; }
+        .risk-high { background: #fee2e2; color: #dc2626; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm" data-html2canvas-ignore="true">
+        <div class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-3 pr-8 border-r border-gray-100 my-3">
+                    <div class="w-8 h-8 bg-brand-600 flex items-center justify-center text-white font-bold text-lg rounded-sm">H</div>
+                    <span class="text-xl font-bold text-slate-900 tracking-tight">BridgeAI <span class="text-brand-600">HR</span></span>
+                </div>
+
+                <div class="flex-1 flex space-x-2 overflow-x-auto no-scrollbar pl-6">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large opacity-70"></i> Dashboard</a>
+                    <a href="company-profile.html" class="nav-link"><i class="fas fa-building opacity-70"></i> Company Profile</a>
+                    <a href="post-job.html" class="nav-link"><i class="fas fa-plus-circle opacity-70"></i> Post a Job</a>
+                    <a href="manage-jobs.html" class="nav-link"><i class="fas fa-tasks opacity-70"></i> Manage Jobs</a>
+                    <a href="all-participants.html" class="nav-link"><i class="fas fa-users opacity-70"></i> Candidates</a>
+                    <a href="suggest-talent.html" class="nav-link"><i class="fas fa-search opacity-70"></i> Suggest Talent</a>
+                    <a href="accepted.html" class="nav-link active text-green-600">
+                        <i class="fas fa-check-circle"></i> Accepted
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-4 pl-4 border-l border-gray-100 my-3">
+                    <div class="flex items-center gap-2 cursor-pointer group relative">
+                        <div class="w-8 h-8 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center font-bold text-sm overflow-hidden">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs text-slate-400 group-hover:text-slate-600"></i>
+                        
+                        <div class="absolute right-0 top-10 w-56 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                            <div class="p-4 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                                <p class="text-sm font-bold text-slate-800">HR Manager</p>
+                                <p class="text-xs text-brand-600 font-semibold mt-0.5">Recruitment Team</p>
+                            </div>
+                            <div class="p-2 space-y-1">
+                                <a href="company-profile.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-700 rounded-md transition"><i class="fas fa-cog w-4"></i> Settings</a>
+                                <hr class="my-1 border-gray-100">
+                                <button id="logout-btn" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition text-left"><i class="fas fa-sign-out-alt w-4"></i> Logout</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="content-to-export">
+        
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold uppercase tracking-widest border border-green-100 mb-3" data-html2canvas-ignore="true">
+                    <i class="fas fa-star"></i> Shortlisted Talent
+                </div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Accepted Candidates <span class="text-green-600">✅</span></h1>
+                <p class="text-slate-500 mt-1 text-sm font-medium">Review the list of candidates you have approved for the next rounds or direct offers.</p>
+            </div>
+            <button id="export-pdf-btn" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg transition" data-html2canvas-ignore="true">
+                <i class="fas fa-file-pdf mr-2"></i> Export to PDF
+            </button>
+        </header>
+
+        <div class="glass-card shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full custom-table">
+                    <thead>
+                        <tr>
+                            <th class="py-5 px-6 text-left">Candidate Info</th>
+                            <th class="py-5 px-6 text-left">Applied Role</th>
+                            <th class="py-5 px-6 text-center">Engagement</th>
+                            <th class="py-5 px-6 text-center">Risk Status</th>
+                            <th class="py-5 px-6 text-right" data-html2canvas-ignore="true">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="retention-list" class="divide-y divide-slate-100">
+                        <tr>
+                            <td class="py-4 px-6">
+                                <div class="font-bold text-slate-800">Aarav Sharma</div>
+                                <div class="text-xs text-slate-500">aarav.s@example.com</div>
+                            </td>
+                            <td class="py-4 px-6 font-medium text-slate-600">Full Stack Developer</td>
+                            <td class="py-4 px-6 text-center font-bold text-slate-700">88%</td>
+                            <td class="py-4 px-6 text-center"><span class="risk-badge risk-low">🟢 Safe</span></td>
+                            <td class="py-4 px-6 text-right" data-html2canvas-ignore="true">
+                                <button class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-md hover:bg-indigo-100 transition text-sm font-semibold" onclick="alert('Warm-up email sent!')">✉️ Nudge</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-4 px-6">
+                                <div class="font-bold text-slate-800">Neha Gupta</div>
+                                <div class="text-xs text-slate-500">neha.g@example.com</div>
+                            </td>
+                            <td class="py-4 px-6 font-medium text-slate-600">AI Architect</td>
+                            <td class="py-4 px-6 text-center font-bold text-slate-700">54%</td>
+                            <td class="py-4 px-6 text-center"><span class="risk-badge risk-med">🟡 Warning</span></td>
+                            <td class="py-4 px-6 text-right" data-html2canvas-ignore="true">
+                                <button class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-md hover:bg-indigo-100 transition text-sm font-semibold" onclick="alert('Warm-up email sent!')">✉️ Nudge</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-4 px-6">
+                                <div class="font-bold text-slate-800">Vikram Singh</div>
+                                <div class="text-xs text-slate-500">vikram.s@example.com</div>
+                            </td>
+                            <td class="py-4 px-6 font-medium text-slate-600">Frontend Engineer</td>
+                            <td class="py-4 px-6 text-center font-bold text-slate-700">21%</td>
+                            <td class="py-4 px-6 text-center"><span class="risk-badge risk-high">🔴 Danger</span></td>
+                            <td class="py-4 px-6 text-right" data-html2canvas-ignore="true">
+                                <button class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-md hover:bg-indigo-100 transition text-sm font-semibold" onclick="alert('Warm-up email sent!')">✉️ Nudge</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-4 px-6">
+                                <div class="font-bold text-slate-800">Priya Patel</div>
+                                <div class="text-xs text-slate-500">priya.p@example.com</div>
+                            </td>
+                            <td class="py-4 px-6 font-medium text-slate-600">Backend Developer</td>
+                            <td class="py-4 px-6 text-center font-bold text-slate-700">92%</td>
+                            <td class="py-4 px-6 text-center"><span class="risk-badge risk-low">🟢 Safe</span></td>
+                            <td class="py-4 px-6 text-right" data-html2canvas-ignore="true">
+                                <button class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-md hover:bg-indigo-100 transition text-sm font-semibold" onclick="alert('Warm-up email sent!')">✉️ Nudge</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.getElementById('export-pdf-btn').addEventListener('click', function() {
+            // Button text change on click to show progress
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Generating PDF...';
+            
+            // Selecting the main container to export
+            const element = document.getElementById('content-to-export');
+            
+            const opt = {
+                margin:       0.5,
+                filename:     'Accepted_Candidates_BridgeAI.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Generate PDF
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Restore button text after download
+                btn.innerHTML = originalText;
+            });
+        });
+    </script>
+
+    </body>
+</html>
