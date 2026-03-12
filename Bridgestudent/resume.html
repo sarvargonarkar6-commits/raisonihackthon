@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Resume Analyzer & Builder | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base styles */
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; overflow-x: hidden; }
+        
+        /* TOP NAV LINKS */
+        .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 12px 8px; color: #64748B; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease; border-bottom: 3px solid transparent; white-space: nowrap; }
+        @media (min-width: 768px) { .nav-link { padding: 16px 12px; } }
+        .nav-link:hover { color: #16a34a; }
+        .nav-link.active { color: #16a34a; border-bottom: 3px solid #16a34a; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* GLASS CARD */
+        .glass-card { background: white; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .glass-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        
+        /* SCORE CIRCLE */
+        .score-circle { transition: stroke-dashoffset 1s ease-in-out; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        
+        /* ANIMATIONS */
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); }
+        .modal-content { background: white; margin: 2% auto; padding: 0; border-radius: 16px; width: 95%; max-width: 900px; height: 90vh; display: flex; flex-direction: column; overflow: hidden; animation: fadeIn 0.3s; }
+        
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* Resume Print Styling */
+        #generated-resume-content { font-family: 'Arial', sans-serif; color: #000; background: #fff; padding: 40px; }
+        
+        /* Mobile specific adjustments */
+        @media (max-width: 1024px) {
+            .modal-content { width: 100%; height: 100%; margin: 0; border-radius: 0; }
+            #generated-resume-content { padding: 20px; }
+            .grid-cols-1.lg\:grid-cols-2 { height: auto !important; }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm shrink-0">
+        <div class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-2 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                
+                <div class="flex items-center gap-2 md:gap-3 pr-3 md:pr-8 border-r border-gray-100 my-3">
+                    <div class="w-8 h-8 bg-brand-600 flex items-center justify-center text-white font-bold text-lg rounded-sm shrink-0">C</div>
+                    <span class="text-lg md:text-xl font-bold text-slate-900 tracking-tight">BridgeAI</span>
+                </div>
+
+                <div class="flex-1 flex space-x-2 overflow-x-auto no-scrollbar pl-3 md:pl-6 items-center">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large opacity-70"></i> Dashboard</a>
+                    <a href="roadmap.html" class="nav-link"><i class="fas fa-map-signs opacity-70"></i> Roadmap</a>
+                    <a href="interview.html" class="nav-link"><i class="fas fa-robot opacity-70"></i> AI Interview</a>
+                    <a href="internship.html" class="nav-link"><i class="fas fa-laptop-code opacity-70"></i> AI Internship</a>
+                    <a href="soft-skills.html" class="nav-link"><i class="fas fa-comments opacity-70"></i> Soft Skills</a>
+                    <a href="resume.html" class="nav-link active"><i class="fas fa-file-alt"></i> ATS Analyzer</a>
+                    <a href="jobs.html" class="nav-link"><i class="fas fa-briefcase opacity-70"></i> Jobs</a>
+                    <a href="unlockgoal.html" class="nav-link text-purple-600 border-b-2 border-transparent hover:border-purple-600 ml-2">
+                        <i class="fas fa-bullseye text-purple-500"></i> UnlockGoal
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-3 md:gap-4 pl-3 md:pl-4 border-l border-gray-100 my-3">
+                    <button class="hidden md:flex items-center gap-2 bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-yellow-200 transition">
+                        <i class="fas fa-crown"></i> Pro
+                    </button>
+                    
+                    <div class="flex items-center gap-2 cursor-pointer group relative">
+                        <div id="nav-profile-img-container" class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm overflow-hidden shrink-0">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs text-slate-400 group-hover:text-slate-600 hidden sm:block"></i>
+                        
+                        <div class="absolute right-0 top-10 w-48 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                            <div class="p-3 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                                <p class="text-sm font-bold text-slate-800" id="dropdown-name">Student Name</p>
+                                <p class="text-xs text-brand-600 font-semibold mt-0.5">Free Plan</p>
+                            </div>
+                            <div class="p-1">
+                                <a href="profile.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-brand-600 rounded-md transition">
+                                    <i class="fas fa-user-circle w-5"></i> Edit Profile
+                                </a>
+                                <button onclick="logoutUser()" class="w-full text-left flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition">
+                                    <i class="fas fa-sign-out-alt w-5"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-2 sm:px-4 lg:px-8 py-6 md:py-8 fade-in">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
+            <div>
+                <h1 class="text-xl md:text-2xl font-extrabold text-slate-900">ATS Resume Scanner & Builder</h1>
+                <p class="text-slate-500 mt-1 text-xs md:text-sm">Analyze an existing resume or Auto-Generate a new one using your Profile data.</p>
+            </div>
+            <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-md border shadow-sm shrink-0">
+                <div class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></div>
+                <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wide">AI Connected</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 h-full">
+            
+            <div class="flex flex-col gap-5 md:gap-6">
+                
+                <div class="glass-card p-4 sm:p-6">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fas fa-briefcase"></i> Job Description (JD)</label>
+                    <textarea id="jd-text" class="w-full h-28 md:h-32 p-3 md:p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none resize-none transition" placeholder="Paste the exact job description here..."></textarea>
+                </div>
+
+                <div class="glass-card p-4 sm:p-6 relative overflow-hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2"><i class="fas fa-file-pdf"></i> Resume Options</label>
+                    </div>
+                    
+                    <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 md:p-6 text-center hover:bg-slate-50 hover:border-brand-300 transition relative group cursor-pointer mb-4" id="drop-zone">
+                        <input type="file" id="resume-file" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleFileSelect(this)">
+                        
+                        <div id="upload-label">
+                            <div class="w-10 h-10 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition">
+                                <i class="fas fa-cloud-upload-alt text-lg"></i>
+                            </div>
+                            <p class="font-bold text-slate-700 text-sm">Upload Existing PDF</p>
+                        </div>
+
+                        <div id="file-info" class="hidden">
+                            <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-file-pdf text-lg"></i>
+                            </div>
+                            <p class="font-bold text-slate-800 text-sm truncate px-2" id="filename">resume.pdf</p>
+                        </div>
+                    </div>
+
+                    <div class="relative flex items-center py-2 mb-4">
+                        <div class="flex-grow border-t border-gray-200"></div>
+                        <span class="flex-shrink-0 mx-4 text-gray-400 text-[10px] sm:text-xs font-bold uppercase">OR AUTO-BUILD</span>
+                        <div class="flex-grow border-t border-gray-200"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fas fa-code text-brand-500"></i> Custom HTML Template (Optional)</label>
+                        <textarea id="custom-template" class="w-full h-20 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:border-brand-500 outline-none resize-none transition custom-scrollbar" placeholder="Paste your own HTML/CSS resume template here... AI will use your design! (Leave blank for default design)"></textarea>
+                    </div>
+
+                    <button onclick="generateResumeFromProfile()" class="w-full mt-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 md:py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs sm:text-sm">
+                        <i class="fas fa-magic text-yellow-400"></i> Auto-Build Resume via Profile
+                    </button>
+
+                </div>
+
+                <button onclick="processAndAnalyze()" id="analyze-btn" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 md:py-4 rounded-xl shadow-lg transition transform hover:scale-[1.01] flex items-center justify-center gap-2 mt-1 md:mt-2 text-sm sm:text-base">
+                    <span id="btn-text">Run ATS Scan</span>
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <div id="results-area" class="flex flex-col gap-6">
+                
+                <div id="empty-state" class="flex flex-col items-center justify-center h-full min-h-[250px] sm:min-h-[300px] md:min-h-[400px] text-center p-6 sm:p-8 md:p-12 bg-white border-2 border-dashed border-slate-200 rounded-2xl">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-slate-50 rounded-full flex items-center justify-center shadow-sm mb-4">
+                        <i class="fas fa-chart-bar text-lg sm:text-xl md:text-2xl text-slate-300"></i>
+                    </div>
+                    <h3 class="text-sm sm:text-base md:text-lg font-bold text-slate-600">Waiting for Data</h3>
+                    <p class="text-[10px] sm:text-xs md:text-sm text-slate-400 max-w-xs mt-2">Upload a resume or generate one to see your ATS score.</p>
+                </div>
+
+                <div id="loading-panel" class="hidden flex-col items-center justify-center h-full min-h-[250px] sm:min-h-[300px] md:min-h-[400px] text-center p-6 sm:p-8 md:p-12 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="w-10 h-10 md:w-12 md:h-12 border-4 border-brand-100 border-t-brand-600 rounded-full animate-spin mb-4"></div>
+                    <h3 class="text-base md:text-lg font-bold text-slate-800">AI Analysis in Progress...</h3>
+                    <p class="text-[10px] sm:text-xs md:text-sm text-slate-500 mt-1">Comparing Keywords & Formatting</p>
+                </div>
+
+                <div id="results-panel" class="hidden flex-col gap-5 md:gap-6 animate-fade-in">
+                    
+                    <div class="glass-card p-4 sm:p-6 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
+                        <div class="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 flex-shrink-0">
+                            <svg class="w-full h-full" viewBox="0 0 100 100">
+                                <circle class="text-slate-100 stroke-current" stroke-width="8" cx="50" cy="50" r="40" fill="transparent"></circle>
+                                <circle id="score-ring" class="text-brand-600 stroke-current score-circle" stroke-width="8" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
+                            </svg>
+                            <div class="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center">
+                                <span class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-800" id="score-text">0%</span>
+                                <span class="text-[8px] sm:text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 md:mt-1">Match</span>
+                            </div>
+                        </div>
+                        <div class="flex-1 w-full">
+                            <h2 class="text-base sm:text-lg md:text-xl font-bold text-slate-900 mb-1 md:mb-2">ATS Scorecard</h2>
+                            <p class="text-[10px] sm:text-xs md:text-sm text-slate-500 mb-3 md:mb-4 leading-relaxed" id="score-summary">Summary goes here...</p>
+                            <div class="flex flex-wrap justify-center sm:justify-start gap-2">
+                                <span class="px-2 py-1 sm:px-2.5 sm:py-1.5 bg-green-50 text-green-700 text-[9px] sm:text-[10px] md:text-xs rounded-lg font-bold border border-green-100 shadow-sm" id="skills-found">0 Matched</span>
+                                <span class="px-2 py-1 sm:px-2.5 sm:py-1.5 bg-red-50 text-red-700 text-[9px] sm:text-[10px] md:text-xs rounded-lg font-bold border border-red-100 shadow-sm" id="skills-missing">0 Missing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-4 sm:p-6">
+                        <h3 class="text-[9px] sm:text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 md:mb-4 flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle text-orange-500"></i> Missing Keywords
+                        </h3>
+                        <div class="flex flex-wrap gap-2" id="missing-keywords-container"></div>
+                    </div>
+
+                    <div class="glass-card p-4 sm:p-6 bg-yellow-50/50 border-yellow-100">
+                        <h3 class="text-[9px] sm:text-[10px] md:text-xs font-bold text-yellow-600 uppercase tracking-wider mb-3 md:mb-4 flex items-center gap-2">
+                            <i class="fas fa-lightbulb"></i> Optimization Tips
+                        </h3>
+                        <ul class="space-y-2 md:space-y-3 text-[10px] sm:text-xs md:text-sm text-slate-700" id="tips-list"></ul>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="resume-builder-modal" class="modal">
+        <div class="modal-content">
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-slate-50 flex flex-wrap justify-between items-center gap-3 shrink-0">
+                <div>
+                    <h2 class="text-sm sm:text-base md:text-lg font-bold text-slate-800 flex items-center"><i class="fas fa-magic text-brand-600 mr-2"></i> AI Generated Resume</h2>
+                    <p class="text-[9px] sm:text-[10px] md:text-xs text-slate-500 hidden sm:block">Built automatically using your profile data.</p>
+                </div>
+                <div class="flex gap-2 sm:gap-3">
+                    <button onclick="printResume()" class="bg-brand-600 hover:bg-brand-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded font-bold text-[10px] sm:text-xs md:text-sm shadow transition flex items-center"><i class="fas fa-print mr-1"></i> <span class="hidden sm:inline">Save as PDF</span><span class="sm:hidden">Save</span></button>
+                    <button onclick="closeResumeModal()" class="text-slate-400 hover:text-red-500 text-lg sm:text-xl px-2 transition"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+
+            <div id="resume-loading" class="flex-1 flex flex-col items-center justify-center bg-white">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 border-4 border-brand-100 border-t-brand-600 rounded-full animate-spin mb-3 sm:mb-4"></div>
+                <p class="text-xs sm:text-sm md:text-base text-slate-500 font-bold">Drafting your perfect resume...</p>
+            </div>
+
+            <div id="generated-resume-area" class="flex-1 overflow-y-auto bg-gray-200 p-2 sm:p-4 md:p-8 hidden custom-scrollbar">
+                <div id="generated-resume-content" class="max-w-[800px] mx-auto shadow-2xl min-h-[1056px] w-full">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="resume.js"></script>
+</body>
+</html>
