@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Interview | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { 
+                    colors: { 
+                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' } 
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] } 
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+        
+        /* TOP NAV LINKS */
+        .nav-link { display: inline-flex; align-items: center; gap: 8px; padding: 16px 12px; color: #64748B; font-weight: 600; font-size: 0.875rem; transition: all 0.2s ease; border-bottom: 3px solid transparent; }
+        .nav-link:hover { color: #16a34a; }
+        .nav-link.active { color: #16a34a; border-bottom: 3px solid #16a34a; }
+
+        /* CARDS */
+        .glass-card { background: white; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+
+        /* WEBCAM */
+        .webcam-container { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 12px; overflow: hidden; position: relative; border: 2px solid #E2E8F0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .recording-dot { width: 10px; height: 10px; background: red; border-radius: 50%; position: absolute; top: 10px; right: 10px; animation: pulse 1.5s infinite; }
+
+        /* CHAT STYLES */
+        .msg-bubble { padding: 15px 20px; border-radius: 16px; font-size: 15px; line-height: 1.6; max-width: 85%; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .msg-ai { background: white; border: 1px solid #E2E8F0; align-self: flex-start; color: #334155; border-bottom-left-radius: 4px; }
+        .msg-user { background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+
+        /* CODE EDITOR */
+        .code-panel { display: none; background: #1E1E1E; flex-direction: column; border-left: 1px solid #333; transition: all 0.3s ease; }
+        .code-active { display: flex; width: 50%; } 
+        .chat-shrunk { width: 50%; }
+
+        /* ANIMATIONS */
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm shrink-0">
+        <div class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-3 pr-8 border-r border-gray-100 my-3">
+                    <div class="w-8 h-8 bg-brand-600 flex items-center justify-center text-white font-bold text-lg rounded-sm">C</div>
+                    <span class="text-xl font-bold text-slate-900 tracking-tight">BridgeAI</span>
+                </div>
+
+                <div class="flex-1 flex space-x-2 overflow-x-auto no-scrollbar pl-6">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+                    <a href="roadmap.html" class="nav-link"><i class="fas fa-map-signs"></i> Roadmap</a>
+                    <a href="ai-practice.html" class="nav-link active"><i class="fas fa-robot"></i> AI Interview</a>
+                    <a href="internship.html" class="nav-link"><i class="fas fa-laptop-code"></i> AI Internship</a>
+                    <a href="soft-skills.html" class="nav-link"><i class="fas fa-comments"></i> Soft Skills</a>
+                    <a href="resume.html" class="nav-link"><i class="fas fa-file-alt"></i> ATS Analyzer</a>
+                    <a href="jobs.html" class="nav-link"><i class="fas fa-briefcase"></i> Jobs</a>
+                    <a href="unlockgoal.html" class="nav-link text-purple-600 hover:border-purple-600 relative">
+                        <i class="fas fa-bullseye text-purple-500"></i> UnlockGoal
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-4 pl-4 border-l border-gray-100 my-3">
+                    <div class="flex items-center gap-2 text-sm font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 animate-pulse">
+                        <i class="fas fa-circle text-[8px]"></i> Live Interview
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-[96%] 2xl:max-w-screen-2xl mx-auto w-full flex gap-6 py-6 overflow-hidden fade-in">
+        
+        <div class="flex-1 glass-card flex flex-col overflow-hidden relative">
+            <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-10 shrink-0">
+                <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span> 
+                    AI Technical Assessment <span id="ai-speaking-status" class="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded ml-2 hidden">Speaking...</span>
+                </h2>
+                <div class="flex items-center gap-3">
+                    <div class="text-xs font-mono text-slate-400 bg-slate-50 px-3 py-1 rounded-md border border-slate-200">Model: Llama-3-70b</div>
+                </div>
+            </header>
+
+            <div class="flex flex-1 overflow-hidden relative">
+                
+                <div id="chat-panel" class="flex-1 flex flex-col relative transition-all duration-300 bg-[#F8FAFC]">
+                    <div id="chat-box" class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 custom-scrollbar pb-32">
+                        </div>
+
+                    <div class="absolute bottom-0 left-0 w-full bg-white p-4 border-t border-gray-200 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.03)]">
+                        <div class="flex gap-3 items-center">
+                            <button id="mic-btn" class="w-12 h-12 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition flex items-center justify-center text-lg shadow-inner focus:outline-none">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            
+                            <input type="text" id="user-input" placeholder="Type or speak your answer..." class="flex-1 bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block p-3 outline-none transition" autocomplete="off">
+                            
+                            <button id="send-btn" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-200 flex items-center gap-2">
+                                Send <i class="fas fa-paper-plane text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="code-panel" class="code-panel w-1/2">
+                    <div class="bg-[#252526] text-gray-300 px-4 py-3 text-xs font-mono border-b border-[#333] flex justify-between items-center shrink-0">
+                        <span class="font-bold"><i class="fas fa-code text-blue-400"></i> Live Code Editor</span>
+                        <span class="text-yellow-500 text-[10px] uppercase tracking-wider flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></span> Recording
+                        </span>
+                    </div>
+                    <div class="flex-1 relative">
+                        <textarea id="code-editor" class="w-full h-full bg-[#1e1e1e] text-[#d4d4d4] p-4 font-mono text-sm resize-none outline-none border-none leading-relaxed custom-scrollbar" spellcheck="false" placeholder="// Write your solution here..."></textarea>
+                    </div>
+                    <div class="p-4 bg-[#252526] border-t border-[#333] flex justify-end shrink-0">
+                        <button onclick="submitCode()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-lg transition flex items-center gap-2">
+                            <i class="fas fa-bolt"></i> Submit Solution
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <aside class="w-80 glass-card p-5 flex flex-col shrink-0 overflow-y-auto custom-scrollbar">
+            <div class="mb-6">
+                <div class="webcam-container">
+                    <video id="webcam" autoplay muted playsinline class="w-full h-full object-cover transform scale-x-[-1]"></video>
+                    <div class="recording-dot"></div>
+                    <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm font-bold tracking-wider">LIVE FEED</div>
+                </div>
+                <p class="text-xs text-center text-slate-400 mt-3 flex items-center justify-center gap-1.5 font-semibold">
+                    <i class="fas fa-shield-alt text-green-500"></i> Proctored Session Active
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Candidate</h3>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <p id="ui-name" class="text-lg font-bold text-slate-800 truncate">Student</p>
+                    <p id="ui-role" class="text-sm text-blue-600 font-medium truncate mt-0.5">Developer</p>
+                </div>
+            </div>
+
+            <div class="mb-auto">
+                <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Progress</h3>
+                <div class="w-full bg-slate-100 rounded-full h-2.5 mb-2 overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-500 font-bold">
+                    <span id="status-text">Interviewing...</span>
+                    <span id="q-counter" class="bg-slate-100 px-2 py-0.5 rounded text-slate-700">Q: 0/10</span>
+                </div>
+            </div>
+
+            <div id="warning-box" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 mt-6 animate-bounce">
+                <p class="text-sm text-red-600 font-bold flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle"></i> Warning!
+                </p>
+                <p class="text-xs text-red-500 mt-1 font-medium">Tab switching detected. This incident has been logged.</p>
+            </div>
+        </aside>
+
+    </main>
+
+    <div id="result-modal" class="hidden fixed inset-0 bg-slate-900/80 z-[100] flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
+            
+            <div id="analyzing-state">
+                <div class="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Interview Over!</h2>
+                <p class="text-slate-500">AI is analyzing your answers & generating roadmap...</p>
+                <p class="text-xs text-slate-400 mt-2">(This may take 10-15 seconds)</p>
+            </div>
+
+            <div id="done-state" class="hidden">
+                <div class="text-6xl mb-4">🚀</div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Analysis Complete!</h2>
+                <p class="text-slate-500 mb-6">Your customized roadmap and salary insights are ready.</p>
+                <button onclick="window.location.href='roadmap.html'" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg transform hover:scale-105">
+                    View My Roadmap & Insights
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module" src="ai-practice.js"></script>
+</body>
+</html>
