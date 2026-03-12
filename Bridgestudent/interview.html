@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice & Text Interview | BridgeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80',
+                            500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d',
+                        },
+                        dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' }
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 0 15px rgba(22, 163, 74, 0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            overflow-x: hidden; 
+        }
+        
+        .nav-link { 
+            display: inline-flex; align-items: center; gap: 8px; padding: 12px 8px; 
+            color: #64748b; font-weight: 600; font-size: 0.875rem; transition: all 0.3s ease; 
+            border-bottom: 3px solid transparent; white-space: nowrap;
+        }
+        @media (min-width: 768px) {
+            .nav-link { padding: 16px 14px; border-bottom: 2px solid transparent; }
+        }
+        .nav-link:hover { color: #16a34a; }
+        .nav-link.active { color: #16a34a; border-bottom-color: #16a34a; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(0,0,0,0); } 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); } }
+        .recording-indicator { animation: pulse-red 2s infinite; }
+        
+        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); } 70% { box-shadow: 0 0 0 12px rgba(0,0,0,0); } 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); } }
+        .mic-active { 
+            animation: pulse-green 1.5s infinite; background-color: #16a34a !important; 
+            color: white !important; border-color: #16a34a !important; transform: scale(1.05);
+        }
+        
+        .chat-bubble { opacity: 0; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .loader { border: 3px solid #e2e8f0; border-top: 3px solid #16a34a; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* Level Map Styles */
+        .level-box { transition: all 0.3s ease; }
+        .level-locked { background: #f1f5f9; color: #94a3b8; border: 1px dashed #cbd5e1; }
+        .level-active { background: #16a34a; color: white; border: 2px solid #15803d; box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3); animation: pulse-green 2s infinite; }
+        .level-passed { background: #dcfce7; color: #16a34a; border: 1px solid #86efac; }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen md:h-screen">
+
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm shrink-0">
+        <div class="max-w-[96%] 2xl:max-w-screen-2xl mx-auto px-2 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-2 md:gap-3 pr-3 md:pr-8 border-r border-gray-100 my-3">
+                    <div class="w-8 h-8 bg-brand-600 flex items-center justify-center text-white font-bold text-lg rounded-sm shrink-0">C</div>
+                    <span class="text-lg md:text-xl font-bold text-slate-900 tracking-tight hidden sm:block">BridgeAI</span>
+                </div>
+
+                <div class="flex-1 flex space-x-2 overflow-x-auto no-scrollbar pl-3 md:pl-6 items-center">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large opacity-70"></i> Dashboard</a>
+                    <a href="roadmap.html" class="nav-link"><i class="fas fa-map-signs opacity-70"></i> Roadmap</a>
+                    <a href="interview.html" class="nav-link active"><i class="fas fa-robot"></i> AI Interview</a>
+                    <a href="internship.html" class="nav-link"><i class="fas fa-laptop-code opacity-70"></i> AI Internship</a>
+                    <a href="soft-skills.html" class="nav-link"><i class="fas fa-comments opacity-70"></i> Soft Skills</a>
+                    <a href="resume.html" class="nav-link"><i class="fas fa-file-alt opacity-70"></i> ATS Analyzer</a>
+                    <a href="jobs.html" class="nav-link"><i class="fas fa-briefcase opacity-70"></i> Jobs</a>
+                </div>
+
+                <div class="flex items-center gap-3 md:gap-4 pl-3 md:pl-4 border-l border-gray-100 my-3">
+                    <button class="hidden md:flex items-center gap-2 bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-yellow-200 transition">
+                        <i class="fas fa-crown"></i> Pro
+                    </button>
+                    <div class="flex items-center gap-2 cursor-pointer group relative">
+                        <div id="nav-profile-img-container" class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm overflow-hidden shrink-0">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs text-slate-400 group-hover:text-slate-600 hidden sm:block"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="w-full max-w-[96%] 2xl:max-w-screen-2xl mx-auto pt-4 md:pt-6 shrink-0">
+        <div class="glass-panel flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-4 md:p-5 rounded-2xl shadow-soft border border-slate-200/60 mb-4 md:mb-6">
+            <div class="flex items-center gap-3 md:gap-4">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-brand-400 text-lg md:text-xl shadow-lg border border-slate-700 shrink-0">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight leading-tight">10-Level Career Interview</h1>
+                    <p class="text-[10px] md:text-sm text-slate-500 font-medium mt-0.5">Strict Proctoring | 70% Required</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 md:gap-3 w-full md:w-auto overflow-x-auto no-scrollbar pb-1 md:pb-0">
+                <div class="flex items-center gap-1.5 md:gap-2 bg-red-50 text-red-600 px-2.5 md:px-3 py-1.5 md:py-2 rounded-xl text-[9px] md:text-[10px] font-bold border border-red-100 recording-indicator min-w-max">
+                    <div class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-red-600"></div> PROCTORED
+                </div>
+                <div class="px-3 md:px-5 py-1.5 md:py-2.5 bg-white border border-slate-200 rounded-xl flex items-center gap-2 md:gap-3 shadow-sm min-w-max">
+                    <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center"><i class="fas fa-layer-group text-xs md:text-base"></i></div>
+                    <div>
+                        <p class="text-[8px] md:text-[10px] uppercase font-bold text-slate-400 tracking-widest" id="top-level-text">Level 1</p>
+                        <p class="text-xs md:text-sm font-extrabold text-slate-700 leading-none mt-0.5" id="top-q-text">Q: 1/10</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden max-w-[96%] 2xl:max-w-screen-2xl mx-auto w-full gap-4 md:gap-6 pb-4 md:pb-6">
+        
+        <aside class="w-full md:w-80 flex flex-col gap-4 md:gap-6 shrink-0 md:overflow-y-auto no-scrollbar">
+            
+            <div class="glass-panel rounded-2xl p-2 md:p-3 shadow-soft relative overflow-hidden group shrink-0">
+                <div class="absolute inset-0 bg-gradient-to-b from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                
+                <div class="rounded-xl overflow-hidden bg-slate-900 relative h-48 md:h-auto md:aspect-video border-2 border-slate-800 shadow-inner shrink-0">
+                    <video id="webcam" autoplay muted playsinline class="w-full h-full object-cover transform scale-x-[-1]"></video>
+                    
+                    <div class="absolute inset-0 border-[3px] border-transparent transition-colors duration-500" id="face-frame"></div>
+                    <div class="absolute top-0 left-0 w-full h-[2px] bg-green-500 opacity-50 shadow-[0_0_10px_#22c55e] animate-[scan_3s_linear_infinite]"></div>
+                    
+                    <div class="absolute bottom-2 left-2 right-2 md:bottom-3 md:left-3 md:right-3 flex justify-between items-center">
+                        <div class="bg-black/50 backdrop-blur-md text-white text-[9px] md:text-[10px] px-2 py-1 md:px-2.5 rounded-full flex items-center gap-1.5 border border-white/10">
+                            <div class="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_8px_#4ade80]" id="cam-status-dot"></div> <span id="cam-status-text">Face Tracked</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4 md:gap-6">
+                <div class="glass-panel rounded-2xl p-4 md:p-6 shadow-soft shrink-0">
+                    <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-5">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 text-lg md:text-xl font-bold border-2 border-white shadow-sm shrink-0">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Candidate</h3>
+                            <p id="ui-name" class="text-base md:text-lg font-extrabold text-slate-800 leading-tight truncate">Student Name</p>
+                        </div>
+                    </div>
+                    <p id="ui-role" class="text-[10px] md:text-xs text-brand-700 font-bold bg-brand-50 inline-block px-3 py-1 rounded-full border border-brand-100 mb-4 md:mb-6 w-full text-center truncate">Target Role</p>
+                    
+                    <div>
+                        <div class="flex justify-between items-end mb-1.5 md:mb-2">
+                            <span class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wide">Level Score</span>
+                            <span id="score-counter" class="text-xs md:text-sm font-extrabold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">0 / 100</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 md:h-2.5 shadow-inner overflow-hidden relative">
+                            <div class="absolute left-[70%] top-0 bottom-0 w-0.5 bg-red-400 z-10" title="Passing Target (70%)"></div>
+                            <div id="progress-bar" class="bg-gradient-to-r from-brand-400 to-brand-600 h-full rounded-full transition-all duration-700 ease-out relative" style="width: 0%"></div>
+                        </div>
+                        <p class="text-[9px] md:text-[10px] text-slate-400 mt-1.5 md:mt-2 text-center">Need 70% to unlock next level</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 md:p-5 shadow-soft flex flex-col shrink-0">
+                    <h3 class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 md:mb-3">Journey Map</h3>
+                    <div class="grid grid-cols-5 gap-1.5 md:gap-2 overflow-x-auto no-scrollbar pb-1" id="level-map">
+                        </div>
+                </div>
+            </div>
+
+            <div id="warning-box" class="hidden bg-red-50 border-l-4 border-red-500 rounded-r-xl p-3 md:p-4 shadow-sm animate-pulse shrink-0">
+                <p class="text-xs md:text-sm text-red-700 font-bold flex items-center gap-2 mb-1"><i class="fas fa-exclamation-triangle"></i> Security Alert</p>
+                <p class="text-[10px] md:text-xs text-red-600/80 font-medium" id="warning-text">Infraction detected.</p>
+                <p class="text-[9px] md:text-[10px] text-red-500 font-bold mt-1.5 md:mt-2">Warnings: <span id="warning-count">0</span>/5</p>
+            </div>
+        </aside>
+
+        <section class="flex-1 glass-panel rounded-2xl shadow-soft flex flex-col relative overflow-hidden border border-slate-200/60 min-h-[500px]">
+            
+            <header class="p-3 md:p-4 px-4 md:px-6 border-b border-slate-100 flex justify-between items-center bg-white/60 shrink-0">
+                <div class="flex items-center gap-3 md:gap-4">
+                    <div class="relative">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 text-brand-400 flex items-center justify-center text-lg md:text-xl shadow-md border-2 border-white">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="absolute bottom-0 right-0 w-2.5 h-2.5 md:w-3.5 md:h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+                    </div>
+                    <div>
+                        <h2 class="font-extrabold text-slate-800 text-sm md:text-base">AI Senior Evaluator</h2>
+                        <div class="flex items-center gap-2 mt-0.5" id="ai-status">
+                            <span class="text-[10px] md:text-xs font-medium text-slate-500 flex items-center gap-1">
+                                <i class="fas fa-check-circle text-green-500 text-[9px] md:text-[10px]"></i> System Connected
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="endInterviewEarly()" class="group text-[10px] md:text-xs font-bold text-red-500 hover:text-white hover:bg-red-500 px-3 py-1.5 md:px-4 md:py-2 rounded-lg transition-all border border-red-100 hover:border-red-500 flex items-center gap-1.5 md:gap-2 shadow-sm shrink-0">
+                    <i class="fas fa-stop-circle"></i> <span class="hidden sm:inline">End Session</span><span class="sm:hidden">End</span>
+                </button>
+            </header>
+
+            <div id="chat-box" class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6 scroll-smooth bg-slate-50/50 text-sm md:text-base"></div>
+
+            <div class="p-3 md:p-5 border-t border-slate-200 bg-white/80 backdrop-blur-sm relative shrink-0">
+                <p id="mic-status-text" class="absolute -top-7 md:-top-8 left-1/2 -translate-x-1/2 bg-brand-600 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest px-3 py-1 md:px-4 md:py-1.5 rounded-full shadow-md hidden animate-bounce whitespace-nowrap">
+                    <i class="fas fa-microphone-alt mr-1"></i> Listening... Speak now
+                </p>
+                
+                <div class="flex gap-2 md:gap-3 w-full mx-auto items-end">
+                    <button id="mic-btn" class="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-slate-100 border border-slate-200 text-slate-600 text-lg md:text-xl flex items-center justify-center shrink-0 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-300 transition-all focus:outline-none shadow-sm group" title="Use Microphone">
+                        <i class="fas fa-microphone group-hover:scale-110 transition-transform"></i>
+                    </button>
+                    
+                    <div class="flex-1 relative">
+                        <input type="text" id="user-input" placeholder="Type answer or click mic..." class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs md:text-sm rounded-xl md:rounded-2xl focus:ring-2 md:focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 block p-3 md:p-4 outline-none transition-all shadow-inner" autocomplete="off">
+                    </div>
+                    
+                    <button id="send-btn" class="px-4 py-3 md:px-8 md:py-4 bg-slate-900 hover:bg-brand-600 text-white font-bold rounded-xl md:rounded-2xl transition-colors shadow-md shrink-0 flex items-center justify-center gap-2 group text-xs md:text-base">
+                        <span class="hidden sm:inline">Send</span> <i class="fas fa-paper-plane sm:text-xs group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="result-modal" class="hidden fixed inset-0 bg-slate-900/80 z-[100] flex items-center justify-center backdrop-blur-md p-4">
+        
+        <div id="analyzing-state" class="bg-white rounded-2xl md:rounded-3xl p-6 md:p-10 max-w-[90%] md:max-w-md w-full text-center shadow-2xl border border-white/20">
+            <div class="relative w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6">
+                <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-brand-500 rounded-full border-t-transparent animate-spin"></div>
+                <i class="fas fa-brain absolute inset-0 flex items-center justify-center text-xl md:text-2xl text-brand-500 animate-pulse"></i>
+            </div>
+            <h2 class="text-xl md:text-2xl font-extrabold text-slate-800 mb-1 md:mb-2">Evaluating Level</h2>
+            <p class="text-slate-500 text-xs md:text-sm font-medium">Checking if you crossed the 70% threshold...</p>
+        </div>
+
+        <div id="done-state" class="hidden bg-white rounded-2xl md:rounded-3xl w-[90%] max-w-2xl flex-col overflow-hidden shadow-2xl border border-slate-200">
+            <div class="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center text-center flex-col bg-slate-50">
+                <div id="level-result-icon" class="text-5xl md:text-6xl mb-3 md:mb-4">🏆</div>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight" id="level-result-title">Level Passed!</h2>
+                <p class="text-xs md:text-sm text-slate-500 mt-1 md:mt-2 font-medium" id="level-result-msg">You have successfully unlocked the next level.</p>
+                <div class="text-4xl md:text-5xl font-black mt-3 md:mt-4" id="level-final-score">0%</div>
+            </div>
+            <div class="p-4 md:p-6 bg-white flex flex-col-reverse sm:flex-row justify-center gap-3 md:gap-4">
+                <button onclick="window.location.href='dashboard.html'" class="w-full sm:w-auto px-5 py-2.5 md:px-6 md:py-3 text-slate-600 font-bold hover:bg-slate-100 rounded-xl transition-colors border border-slate-200 text-sm md:text-base">Dashboard</button>
+                <button id="next-level-btn" onclick="goToNextLevelOrRetry()" class="w-full sm:w-auto px-5 py-2.5 md:px-8 md:py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-colors shadow-md text-sm md:text-base">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="interview.js"></script>
+</body>
+</html>
